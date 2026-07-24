@@ -39,6 +39,10 @@ function getNextName(baseName) {
     return `${baseName} ${Math.max(...nums) + 1}`;
 }
 
+function hasNameConflict(name, excludeId) {
+    return creatures.some(c => c.id !== excludeId && c.name === name);
+}
+
 // ========== TAB SWITCHING ==========
 function switchTab(tab) {
     document.getElementById('panelTracker').classList.toggle('hidden', tab !== 'tracker');

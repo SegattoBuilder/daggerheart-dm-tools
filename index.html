@@ -269,7 +269,7 @@
                     <label class="text-[10px] text-zinc-500 uppercase tracking-wide font-bold block mb-1">Armor</label>
                     <input id="modalArmor" type="number" value="0" min="0" max="30" class="w-full bg-[#1a1714] border border-[#4a3f30] rounded-lg px-4 py-3 text-sm outline-none focus:border-[#d4a017]">
                 </div>
-                <div>
+                <div id="modalQtyRow">
                     <label class="text-[10px] text-zinc-500 uppercase tracking-wide font-bold block mb-1">Quantity</label>
                     <input id="modalQty" type="number" value="1" min="1" max="20" class="w-full bg-[#1a1714] border border-[#4a3f30] rounded-lg px-4 py-3 text-sm outline-none focus:border-[#d4a017]">
                 </div>
@@ -302,7 +302,7 @@ Bite - Action: Mark a Stress to attack..." class="w-full bg-[#1a1714] border bor
         </div>
 
         <div class="flex gap-3 mt-6">
-            <button onclick="addCreatures()" class="flex-1 btn-action text-xs py-3 rounded-xl font-bold uppercase text-white">Add</button>
+            <button id="modalSubmitBtn" onclick="addCreatures()" class="flex-1 btn-action text-xs py-3 rounded-xl font-bold uppercase text-white">Add</button>
             <button onclick="closeAddModal()" class="flex-1 bg-[#2a2418] border border-[#3d362a] text-xs py-3 rounded-xl font-bold uppercase text-[#a89880]">Cancel</button>
         </div>
     </div>
@@ -385,14 +385,14 @@ Bite - Action: Mark a Stress to attack..." class="w-full bg-[#1a1714] border bor
 Relentless (3) - Passive: Can be spotlighted 3 times...
 Bite - Action: Mark a Stress to attack..." class="w-full bg-[#1a1714] border border-[#4a3f30] rounded-lg px-4 py-3 text-sm outline-none focus:border-[#d4a017] resize-none"></textarea>
             </div>
-            <div>
+            <div id="customQtyRow">
                 <label class="text-[10px] text-zinc-500 uppercase tracking-wide font-bold block mb-1">Quantity</label>
                 <input id="customQty" type="number" value="1" min="1" max="20" class="w-full bg-[#1a1714] border border-[#4a3f30] rounded-lg px-4 py-3 text-sm outline-none focus:border-[#d4a017]">
                 <div class="text-[10px] text-zinc-600 mt-1">Quantity &gt; 1 will create "Name 1", "Name 2", etc.</div>
             </div>
         </div>
         <div class="flex gap-3 mt-6">
-            <button onclick="addCustom()" class="flex-1 btn-action text-xs py-3 rounded-xl font-bold uppercase text-white">Add</button>
+            <button id="customSubmitBtn" onclick="addCustom()" class="flex-1 btn-action text-xs py-3 rounded-xl font-bold uppercase text-white">Add</button>
             <button onclick="closeCustomModal()" class="flex-1 bg-[#2a2418] border border-[#3d362a] text-xs py-3 rounded-xl font-bold uppercase text-[#a89880]">Cancel</button>
         </div>
     </div>

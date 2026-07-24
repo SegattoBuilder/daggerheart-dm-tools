@@ -142,6 +142,8 @@ function openCharacterModal() {
 function closeAddModal() {
     document.getElementById('addModal').classList.add('hidden');
     document.getElementById('addModal').removeAttribute('data-edit-id');
+    document.getElementById('modalQtyRow').classList.remove('hidden');
+    document.getElementById('modalSubmitBtn').textContent = 'Add';
 }
 
 function editCharacterCard(creatureId) {
@@ -154,13 +156,14 @@ function editCharacterCard(creatureId) {
 
     document.getElementById('addModal').classList.remove('hidden');
     document.getElementById('addModal').setAttribute('data-edit-id', creatureId);
+    document.getElementById('modalQtyRow').classList.add('hidden');
+    document.getElementById('modalSubmitBtn').textContent = 'Save';
     document.getElementById('modalName').value = creature.name;
     document.getElementById('modalEvasion').value = creature.evasion || '10';
     document.getElementById('modalHp').value = creature.hpMax || '1';
     document.getElementById('modalStress').value = creature.stressMax || '0';
     document.getElementById('modalHope').value = creature.hopeMax || '0';
     document.getElementById('modalArmor').value = creature.armorMax || '0';
-    document.getElementById('modalQty').value = '1';
     document.getElementById('modalMajor').value = major === '?' ? '' : (major || '');
     document.getElementById('modalSevere').value = severe === '?' ? '' : (severe || '');
     document.getElementById('modalAtk').value = ed ? (ed.attack || '') : '';
@@ -221,6 +224,7 @@ function addCreatures() {
     if (editId) {
         const creature = creatures.find(c => c.id === editId);
         if (creature) {
+            if (hasNameConflict(name, editId)) { alert('Name already in use. Please choose a different name.'); return; }
             creature.name = name;
             creature.evasion = evasion;
             creature.hpMax = hp;
@@ -396,6 +400,9 @@ function openCustomModal() {
 function closeCustomModal() {
     document.getElementById('customModal').classList.add('hidden');
     document.getElementById('customModal').removeAttribute('data-edit-id');
+    document.getElementById('customModal').removeAttribute('data-edit-type');
+    document.getElementById('customQtyRow').classList.remove('hidden');
+    document.getElementById('customSubmitBtn').textContent = 'Add';
 }
 
 function editCustomCard(creatureId) {
@@ -408,6 +415,9 @@ function editCustomCard(creatureId) {
 
     document.getElementById('customModal').classList.remove('hidden');
     document.getElementById('customModal').setAttribute('data-edit-id', creatureId);
+    document.getElementById('customModal').setAttribute('data-edit-type', ed.type || 'Custom');
+    document.getElementById('customQtyRow').classList.add('hidden');
+    document.getElementById('customSubmitBtn').textContent = 'Save';
     document.getElementById('customName').value = creature.name;
     document.getElementById('customDifficulty').value = ed.difficulty || creature.evasion || '10';
     document.getElementById('customHp').value = ed.hp || creature.hpMax || '1';
@@ -417,7 +427,31 @@ function editCustomCard(creatureId) {
     document.getElementById('customAtk').value = ed.attack || '';
     document.getElementById('customAbility').value = ed.ability || '';
     document.getElementById('customFeatures').value = featuresText;
-    document.getElementById('customQty').value = '1';
+    document.getElementById('customName').focus();
+}
+
+function editEnemyCard(creatureId) {
+    const creature = creatures.find(c => c.id === creatureId);
+    if (!creature || !creature.enemyData) return;
+    const ed = creature.enemyData;
+    const thresholds = ed.thresholds || '';
+    const [major, severe] = thresholds.split('/').map(s => s.trim());
+    const featuresText = (ed.feature || []).map(f => f.text ? `${f.name}: ${f.text}` : f.name).join('\n');
+
+    document.getElementById('customModal').classList.remove('hidden');
+    document.getElementById('customModal').setAttribute('data-edit-id', creatureId);
+    document.getElementById('customModal').setAttribute('data-edit-type', 'Enemy (Edited)');
+    document.getElementById('customQtyRow').classList.add('hidden');
+    document.getElementById('customSubmitBtn').textContent = 'Save';
+    document.getElementById('customName').value = creature.name;
+    document.getElementById('customDifficulty').value = ed.difficulty || creature.evasion || '10';
+    document.getElementById('customHp').value = ed.hp || creature.hpMax || '1';
+    document.getElementById('customStress').value = ed.stress || creature.stressMax || '0';
+    document.getElementById('customMajor').value = major === '?' ? '' : (major || '');
+    document.getElementById('customSevere').value = severe === '?' ? '' : (severe || '');
+    document.getElementById('customAtk').value = ed.attack || '';
+    document.getElementById('customAbility').value = ed.ability || '';
+    document.getElementById('customFeatures').value = featuresText;
     document.getElementById('customName').focus();
 }
 
@@ -457,7 +491,7 @@ function addCustom() {
         motives_and_tactics: '',
         ability: ability,
         feature: features,
-        type: 'Custom',
+        type: document.getElementById('customModal').getAttribute('data-edit-type') || 'Custom',
         tier: ''
     };
 
@@ -466,6 +500,7 @@ function addCustom() {
     if (editId) {
         const creature = creatures.find(c => c.id === editId);
         if (creature) {
+            if (hasNameConflict(name, editId)) { alert('Name already in use. Please choose a different name.'); return; }
             creature.name = name;
             creature.evasion = difficulty;
             creature.hpMax = hp;
@@ -501,6 +536,22 @@ function addCustom() {
 }
 
 // ========== CREATURE MANAGEMENT ==========
+function copyCreature(id) {
+    const source = creatures.find(c => c.id === id);
+    if (!source) return;
+    const baseName = source.name.replace(/ \d+$/, '');
+    const copy = {
+        ...JSON.parse(JSON.stringify(source)),
+        id: 'c-' + Date.now() + '-' + Math.random().toString(36).substr(2, 6),
+        name: getNextName(baseName),
+        notes: ''
+    };
+    const idx = creatures.indexOf(source);
+    creatures.splice(idx + 1, 0, copy);
+    autoCache();
+    renderGrid();
+}
+
 function removeCreature(id, event) {
     if (event) { event.stopPropagation(); event.preventDefault(); }
     if (!confirm('Remove this creature?')) return;
@@ -624,14 +675,17 @@ function buildCardInner(creature, dead) {
     return `
         <div class="flex justify-between items-start mb-3">
             <div class="flex items-center gap-2">
-                ${dead ? '<span class="text-red-500 text-sm">💀</span>' : (ed ? (ed.type === 'Custom' ? '<span class="text-zinc-600 text-sm">⚙️</span>' : '<span class="text-zinc-600 text-sm">👹</span>') : '<span class="text-zinc-600 text-sm">⚔️</span>')}
+                ${dead ? '<span class="text-red-500 text-sm">💀</span>' : (ed ? (ed.type === 'Custom' ? '<span class="text-zinc-600 text-sm">⚙️</span>' : ed.type === 'Enemy (Edited)' ? '<span class="text-zinc-600 text-sm">👹⚙️</span>' : '<span class="text-zinc-600 text-sm">👹</span>') : '<span class="text-zinc-600 text-sm">⚔️</span>')}
                 <span class="font-black text-sm uppercase font-[Cinzel] ${dead ? 'text-zinc-600 line-through' : 'text-[#f5efe6]'}">${creature.name}</span>
             </div>
             <div class="flex items-center gap-2">
-                ${ed && ed.type === 'Custom' ? `<button onclick="editCustomCard('${creature.id}')" class="text-zinc-500 hover:text-[#d4a017] text-sm leading-none">✏️</button>` : ''}
-                ${ed && ed.type === 'Character' ? `<button onclick="editCharacterCard('${creature.id}')" class="text-zinc-500 hover:text-[#d4a017] text-sm leading-none">✏️</button>` : ''}
-                <button onclick="flipCard('${creature.id}')" class="text-zinc-500 hover:text-[#d4a017] text-sm leading-none">📝</button>
-                <button onclick="removeCreature('${creature.id}', event)" class="text-zinc-700 hover:text-red-500 text-sm leading-none">✕</button>
+                <button onclick="copyCreature('${creature.id}')" class="text-zinc-500 hover:text-[#d4a017] text-sm leading-none" title="Duplicate">➕</button>
+                ${ed && (ed.type === 'Custom' || ed.type === 'Enemy (Edited)') ? `<button onclick="editCustomCard('${creature.id}')" class="text-zinc-500 hover:text-[#d4a017] text-sm leading-none" title="Edit">✏️</button>` : ''}
+                ${ed && ed.type === 'Character' ? `<button onclick="editCharacterCard('${creature.id}')" class="text-zinc-500 hover:text-[#d4a017] text-sm leading-none" title="Edit">✏️</button>` : ''}
+                ${!ed ? `<button onclick="editCharacterCard('${creature.id}')" class="text-zinc-500 hover:text-[#d4a017] text-sm leading-none" title="Edit">✏️</button>` : ''}
+                ${ed && ed.type !== 'Custom' && ed.type !== 'Character' && ed.type !== 'Enemy (Edited)' ? `<button onclick="editEnemyCard('${creature.id}')" class="text-zinc-500 hover:text-[#d4a017] text-sm leading-none" title="Edit">✏️</button>` : ''}
+                <button onclick="flipCard('${creature.id}')" class="text-zinc-500 hover:text-[#d4a017] text-sm leading-none" title="Notes">📝</button>
+                <button onclick="removeCreature('${creature.id}', event)" class="text-zinc-700 hover:text-red-500 text-sm leading-none" title="Remove">✕</button>
             </div>
         </div>
         ${evasion > 0 ? `
