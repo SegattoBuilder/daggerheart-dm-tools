@@ -31,6 +31,9 @@
         }
         .creature-card:hover { border-color: #5a4d3a; box-shadow: 0 4px 16px #0008; }
         .creature-card.dead { opacity: 0.4; border-top-color: #4a2020; }
+        .creature-card[draggable] { cursor: grab; }
+        .creature-card[draggable]:active { cursor: grabbing; }
+        .creature-card.drag-over { border-color: #d4a017; box-shadow: 0 0 12px #d4a01740; }
 
         .dot { width: 22px; height: 22px; border: 2px solid #4a3f30; border-radius: 50%; cursor: pointer; transition: all 0.15s ease; }
         .dot:hover { border-color: #8b7355; transform: scale(1.1); }
@@ -74,7 +77,6 @@
         .cat-domain-cards { background: #1a3b3b; color: #40e8e8; border-top-color: #40e8e8; }
         .cat-rules { background: #2a2a2a; color: #a0a0a0; border-top-color: #a0a0a0; }
 
-
         /* Card modal scaled text */
         .modal-scaled * { font-size: inherit !important; line-height: 1.7 !important; }
         .modal-scaled { font-size: 1rem; }
@@ -104,7 +106,7 @@
             <button onclick="saveSession()" class="bg-[#2a2418] border border-[#4a3f30] text-[10px] px-2 sm:px-3 py-1.5 rounded-full font-bold uppercase text-zinc-400 font-[Cinzel] hover:border-[#d4a017] hover:text-[#d4a017]">💾 Save</button>
             <label class="bg-[#2a2418] border border-[#4a3f30] text-[10px] px-2 sm:px-3 py-1.5 rounded-full font-bold uppercase text-zinc-400 font-[Cinzel] hover:border-[#d4a017] hover:text-[#d4a017] cursor-pointer">📂 Load<input type="file" accept=".json" onchange="loadSession(event)" class="hidden"></label>
             <button onclick="addCounter()" class="bg-[#2a2418] border border-[#4a3f30] text-[10px] px-2 sm:px-3 py-1.5 rounded-full font-bold uppercase text-[#d4a017] font-[Cinzel] hover:border-[#d4a017]">✚ Counter</button>
-            <button onclick="openAddModal()" class="btn-action text-[10px] px-3 py-1.5 rounded-full font-bold uppercase text-white font-[Cinzel]">+ Creature</button>
+            <button onclick="openAddModal()" class="btn-action text-[10px] px-3 py-1.5 rounded-full font-bold uppercase text-white font-[Cinzel]">+ Adversary</button>
             <button onclick="clearCreatures(event)" class="bg-[#2a1a1a] border border-[#4a2a2a] text-[10px] px-2 py-1.5 rounded-full font-bold uppercase text-red-400 font-[Cinzel] hover:border-red-500">🗑 Creatures</button>
             <button onclick="clearCounters(event)" class="bg-[#2a1a1a] border border-[#4a2a2a] text-[10px] px-2 py-1.5 rounded-full font-bold uppercase text-red-400 font-[Cinzel] hover:border-red-500">🗑 Counters</button>
             <button onclick="resetFear()" class="bg-[#2a1a1a] border border-[#4a2a2a] text-[10px] px-2 py-1.5 rounded-full font-bold uppercase text-red-400 font-[Cinzel] hover:border-red-500">🗑 Fear</button>
@@ -124,7 +126,7 @@
     </div>
     <div id="creatureGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <div id="emptyState" class="col-span-full text-center py-20">
-            <div class="text-zinc-600 text-sm italic">No creatures yet. Click "+ Add Creature" to get started.</div>
+            <div class="text-zinc-600 text-sm italic">No creatures yet. Click "+ Adversary" to get started.</div>
         </div>
     </div>
 </div>
@@ -148,7 +150,6 @@
         <button class="filter-pill" onclick="setCategory('communities')">Communities</button>
         <button class="filter-pill" onclick="setCategory('domain-cards')">Domain Cards</button>
         <button class="filter-pill" onclick="setCategory('rules')">Rules</button>
-
     </div>
     <!-- Contextual Filters -->
     <div id="contextFilters" class="flex flex-wrap gap-3 mb-4 hidden"></div>
@@ -198,11 +199,44 @@
     </div>
 </div>
 
-<!-- Add Creature Modal -->
-<div id="addModal" class="fixed inset-0 modal-overlay hidden z-50 p-4 overflow-y-auto flex items-center justify-center">
-    <div class="modal-panel p-6 w-full max-w-md">
+<!-- Add Type Selection Modal -->
+<div id="addTypeModal" class="fixed inset-0 modal-overlay hidden z-50 p-4 overflow-y-auto flex items-center justify-center" onclick="if(event.target===this)closeAddTypeModal()">
+    <div class="modal-panel p-6 w-full max-w-sm">
         <div class="flex justify-between items-center border-b border-[#363026] pb-3 mb-5">
-            <h2 class="font-black text-base uppercase font-[Cinzel] tracking-wide" style="color: var(--accent-1)">Add Creature</h2>
+            <h2 class="font-black text-base uppercase font-[Cinzel] tracking-wide" style="color: var(--accent-1)">Add Adversary</h2>
+            <button onclick="closeAddTypeModal()" class="text-[#6b5d4d] hover:text-white text-2xl leading-none">✕</button>
+        </div>
+        <div class="space-y-3">
+            <button onclick="closeAddTypeModal(); openCharacterModal()" class="w-full flex items-center gap-3 p-4 bg-[#1a1714] border border-[#4a3f30] rounded-xl hover:border-[#d4a017] transition-colors text-left">
+                <span class="text-2xl">🧑</span>
+                <div>
+                    <div class="text-sm font-bold text-[#f5efe6] font-[Cinzel]">Character</div>
+                    <div class="text-[10px] text-zinc-500">Manual entry — name, evasion, HP, stress, hope, armor</div>
+                </div>
+            </button>
+            <button onclick="closeAddTypeModal(); openEnemyModal()" class="w-full flex items-center gap-3 p-4 bg-[#1a1714] border border-[#4a3f30] rounded-xl hover:border-[#d4a017] transition-colors text-left">
+                <span class="text-2xl">👹</span>
+                <div>
+                    <div class="text-sm font-bold text-[#f5efe6] font-[Cinzel]">Enemy</div>
+                    <div class="text-[10px] text-zinc-500">Search SRD adversaries — auto-populates stats</div>
+                </div>
+            </button>
+            <button onclick="closeAddTypeModal(); openCustomModal()" class="w-full flex items-center gap-3 p-4 bg-[#1a1714] border border-[#4a3f30] rounded-xl hover:border-[#d4a017] transition-colors text-left">
+                <span class="text-2xl">⚙️</span>
+                <div>
+                    <div class="text-sm font-bold text-[#f5efe6] font-[Cinzel]">Custom</div>
+                    <div class="text-[10px] text-zinc-500">Build your own — difficulty, thresholds, attack, abilities & features</div>
+                </div>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Add Character Modal (manual entry) -->
+<div id="addModal" class="fixed inset-0 modal-overlay hidden z-50 p-4 overflow-y-auto flex items-center justify-center" onclick="if(event.target===this)closeAddModal()">
+    <div class="modal-panel p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+        <div class="flex justify-between items-center border-b border-[#363026] pb-3 mb-5">
+            <h2 class="font-black text-base uppercase font-[Cinzel] tracking-wide" style="color: var(--accent-1)">Add Character</h2>
             <button onclick="closeAddModal()" class="text-[#6b5d4d] hover:text-white text-2xl leading-none">✕</button>
         </div>
 
@@ -239,6 +273,30 @@
                     <input id="modalQty" type="number" value="1" min="1" max="20" class="w-full bg-[#1a1714] border border-[#4a3f30] rounded-lg px-4 py-3 text-sm outline-none focus:border-[#d4a017]">
                 </div>
             </div>
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="text-[10px] text-zinc-500 uppercase tracking-wide font-bold block mb-1">Major Threshold</label>
+                    <input id="modalMajor" type="number" value="" min="0" max="99" placeholder="optional" class="w-full bg-[#1a1714] border border-[#4a3f30] rounded-lg px-4 py-3 text-sm outline-none focus:border-[#d4a017]">
+                </div>
+                <div>
+                    <label class="text-[10px] text-zinc-500 uppercase tracking-wide font-bold block mb-1">Severe Threshold</label>
+                    <input id="modalSevere" type="number" value="" min="0" max="99" placeholder="optional" class="w-full bg-[#1a1714] border border-[#4a3f30] rounded-lg px-4 py-3 text-sm outline-none focus:border-[#d4a017]">
+                </div>
+            </div>
+            <div>
+                <label class="text-[10px] text-zinc-500 uppercase tracking-wide font-bold block mb-1">Attack</label>
+                <input id="modalAtk" type="text" placeholder="optional — e.g. Claws 1d8+3 phy, Melee" class="w-full bg-[#1a1714] border border-[#4a3f30] rounded-lg px-4 py-3 text-sm outline-none focus:border-[#d4a017]">
+            </div>
+            <div>
+                <label class="text-[10px] text-zinc-500 uppercase tracking-wide font-bold block mb-1">Ability</label>
+                <textarea id="modalAbility" rows="2" placeholder="optional — free-form ability description..." class="w-full bg-[#1a1714] border border-[#4a3f30] rounded-lg px-4 py-3 text-sm outline-none focus:border-[#d4a017] resize-none"></textarea>
+            </div>
+            <div>
+                <label class="text-[10px] text-zinc-500 uppercase tracking-wide font-bold block mb-1">Features</label>
+                <textarea id="modalFeatures" rows="3" placeholder="optional — one per line, e.g.:
+Relentless (3) - Passive: Can be spotlighted 3 times...
+Bite - Action: Mark a Stress to attack..." class="w-full bg-[#1a1714] border border-[#4a3f30] rounded-lg px-4 py-3 text-sm outline-none focus:border-[#d4a017] resize-none"></textarea>
+            </div>
             <div class="text-[10px] text-zinc-600">Quantity &gt; 1 will create "Name 1", "Name 2", etc.</div>
         </div>
 
@@ -249,915 +307,98 @@
     </div>
 </div>
 
-<script>
-    const SAVE_KEY = 'dh_dm_creatures';
-    const FEAR_KEY = 'dh_dm_fear';
-    const COUNTERS_KEY = 'dh_dm_counters';
-    const CAMPAIGN_KEY = 'dh_campaign_name';
-    let creatures = [];
-    let fearFilled = 0;
-    let actionCounters = [];
-
-    function autoCache() {
-        localStorage.setItem(SAVE_KEY, JSON.stringify(creatures));
-        localStorage.setItem(COUNTERS_KEY, JSON.stringify(actionCounters));
-        localStorage.setItem(FEAR_KEY, String(fearFilled));
-    }
-
-    function saveSession() {
-        const campaign = document.getElementById('campaignName').value.trim();
-        const slug = campaign ? campaign.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') + '-' : '';
-        const data = { creatures, actionCounters, fearFilled, campaign };
-        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = slug + 'dh-session-' + new Date().toISOString().slice(0,10) + '.json';
-        a.click();
-        URL.revokeObjectURL(a.href);
-    }
-
-    function loadSession(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = e => {
-            try {
-                const data = JSON.parse(e.target.result);
-                creatures = data.creatures || [];
-                actionCounters = data.actionCounters || [];
-                fearFilled = data.fearFilled || 0;
-                if (data.campaign) {
-                    document.getElementById('campaignName').value = data.campaign;
-                    localStorage.setItem(CAMPAIGN_KEY, data.campaign);
-                }
-                autoCache();
-                renderFearDots();
-                renderGrid();
-            } catch {
-                alert('Invalid session file.');
-            }
-        };
-        reader.readAsText(file);
-        event.target.value = '';
-    }
-
-    function addCounter() {
-        actionCounters.push({ id: 'ac-' + Date.now(), label: 'Action Counter', value: 0 });
-        autoCache();
-        renderGrid();
-    }
-
-    function removeCounter(id) {
-        if (!confirm('Remove this counter?')) return;
-        actionCounters = actionCounters.filter(c => c.id !== id);
-        autoCache();
-        renderGrid();
-    }
-
-    function stepCounter(id, delta) {
-        const c = actionCounters.find(c => c.id === id);
-        if (!c) return;
-        c.value = Math.max(0, Math.min(100, c.value + delta));
-        autoCache();
-        renderCounterCard(c);
-    }
-
-    function renameCounter(id, val) {
-        const c = actionCounters.find(c => c.id === id);
-        if (!c) return;
-        c.label = val || 'Action Counter';
-        autoCache();
-    }
-
-    function buildCounterCard(c) {
-        const atZero = c.value === 0;
-        return `
-            <div id="${c.id}" class="creature-card flex flex-col ${atZero ? 'ring-1 ring-[#d4a01760]' : ''}" style="border-top-color: #d4a017">
-                <div class="flex justify-between items-center mb-3">
-                    <input value="${escHtmlAttr(c.label)}" onchange="renameCounter('${c.id}', this.value)" class="bg-transparent font-black text-sm uppercase font-[Cinzel] text-[#f5efe6] outline-none border-b border-transparent focus:border-[#d4a017] w-full mr-2">
-                    <button onclick="removeCounter('${c.id}')" class="text-zinc-700 hover:text-red-500 text-sm leading-none flex-shrink-0">✕</button>
-                </div>
-                <div class="flex items-center justify-center gap-4 flex-1">
-                    <button onclick="stepCounter('${c.id}', -1)" class="w-9 h-9 flex items-center justify-center rounded-lg bg-[#2a2418] border border-[#3d362a] text-zinc-300 hover:text-white text-lg font-bold">−</button>
-                    <span class="text-4xl font-black font-[Cinzel] ${atZero ? 'text-[#d4a017]' : 'text-[#f5efe6]'} min-w-[3rem] text-center">${c.value}</span>
-                    <button onclick="stepCounter('${c.id}', 1)" class="w-9 h-9 flex items-center justify-center rounded-lg bg-[#2a2418] border border-[#3d362a] text-zinc-300 hover:text-white text-lg font-bold">+</button>
-                </div>
-            </div>`;
-    }
-
-    function renderCounterCard(c) {
-        const el = document.getElementById(c.id);
-        if (!el) return;
-        el.outerHTML = buildCounterCard(c);
-    }
-
-    function buildFearDots() {
-        let html = '';
-        for (let i = 0; i < 12; i++) {
-            html += `<div id="fear-${i}" class="dot ${i < fearFilled ? 'filled-fear' : ''}" onclick="toggleFear(${i})"></div>`;
-        }
-        return html;
-    }
-
-    function renderFearDots() {
-        document.getElementById('fearDots').innerHTML = buildFearDots();
-    }
-
-    function toggleFear(index) {
-        fearFilled = index < fearFilled ? index : index + 1;
-        localStorage.setItem(FEAR_KEY, String(fearFilled));
-        renderFearDots();
-    }
-
-    function resetFear() {
-        fearFilled = 0;
-        localStorage.setItem(FEAR_KEY, fearFilled);
-        renderFearDots();
-    }
-
-    function openAddModal() {
-        document.getElementById('addModal').classList.remove('hidden');
-        document.getElementById('modalName').value = '';
-        document.getElementById('modalEvasion').value = '10';
-        document.getElementById('modalHp').value = '1';
-        document.getElementById('modalStress').value = '0';
-        document.getElementById('modalHope').value = '0';
-        document.getElementById('modalArmor').value = '0';
-        document.getElementById('modalQty').value = '1';
-        document.getElementById('modalName').focus();
-    }
-
-    function closeAddModal() {
-        document.getElementById('addModal').classList.add('hidden');
-    }
-
-    function addCreatures() {
-        const name = document.getElementById('modalName').value.trim();
-        const evasion = parseInt(document.getElementById('modalEvasion').value) || 0;
-        const hp = parseInt(document.getElementById('modalHp').value) || 0;
-        const stress = parseInt(document.getElementById('modalStress').value) || 0;
-        const hope = parseInt(document.getElementById('modalHope').value) || 0;
-        const armor = parseInt(document.getElementById('modalArmor').value) || 0;
-        const qty = Math.max(1, Math.min(20, parseInt(document.getElementById('modalQty').value) || 1));
-
-        if (!name) { alert('Please enter a name.'); return; }
-
-        for (let i = 1; i <= qty; i++) {
-            const creatureName = qty > 1 ? `${name} ${i}` : name;
-            creatures.push({
-                id: 'c-' + Date.now() + '-' + Math.random().toString(36).substr(2, 6),
-                name: creatureName,
-                evasion,
-                hpMax: hp, hpFilled: hp,
-                stressMax: stress, stressFilled: stress,
-                hopeMax: hope, hopeFilled: hope,
-                armorMax: armor, armorFilled: armor
-            });
-        }
-
-        autoCache();
-        renderGrid();
-        closeAddModal();
-    }
-
-    function removeCreature(id, event) {
-        if (event) { event.stopPropagation(); event.preventDefault(); }
-        if (!confirm('Remove this creature?')) return;
-        creatures = creatures.filter(c => c.id !== id);
-        autoCache();
-        renderGrid();
-    }
-
-    function toggleDot(creatureId, type, index) {
-        const creature = creatures.find(c => c.id === creatureId);
-        if (!creature) return;
-
-        const key = type + 'Filled';
-        // Dots are filled from left. Clicking toggles fill level.
-        // Click on a filled dot: reduce to that index (unfill from there right)
-        // Click on an unfilled dot: fill up to and including that index
-        if (index < creature[key]) {
-            creature[key] = index;
-        } else {
-            creature[key] = index + 1;
-        }
-
-        autoCache();
-        renderCard(creature);
-    }
-
-    function adjustMax(creatureId, type, delta) {
-        const creature = creatures.find(c => c.id === creatureId);
-        if (!creature) return;
-
-        if (type === 'evasion') {
-            creature.evasion = Math.max(0, Math.min(30, (creature.evasion || 0) + delta));
-            autoCache();
-            renderCard(creature);
-            return;
-        }
-
-        const maxKey = type + 'Max';
-        const filledKey = type + 'Filled';
-        const newMax = (creature[maxKey] || 0) + delta;
-
-        if (newMax < 0 || newMax > 30) return;
-
-        creature[maxKey] = newMax;
-        if (creature[filledKey] > newMax) creature[filledKey] = newMax;
-        if (delta > 0) creature[filledKey] = Math.min((creature[filledKey] || 0) + 1, newMax);
-
-        autoCache();
-        renderCard(creature);
-    }
-
-    function renderDots(creature, type) {
-        const max = creature[type + 'Max'];
-        const filled = creature[type + 'Filled'];
-        let html = '';
-        for (let i = 0; i < max; i++) {
-            html += `<div class="dot ${i < filled ? 'filled-' + type : ''}" onclick="toggleDot('${creature.id}', '${type}', ${i})"></div>`;
-        }
-        return html;
-    }
-
-    function isCreatureDead(creature) {
-        return creature.hpFilled <= 0;
-    }
-
-    function renderCard(creature) {
-        const el = document.getElementById(creature.id);
-        if (!el) return;
-        const dead = isCreatureDead(creature);
-        el.className = `creature-card ${dead ? 'dead' : ''}`;
-        el.innerHTML = buildCardInner(creature, dead);
-    }
-
-    function buildCardInner(creature, dead) {
-        const adjBtn = (type, delta) => `<button onclick="adjustMax('${creature.id}', '${type}', ${delta})" class="w-4 h-4 flex items-center justify-center rounded bg-[#2a2418] border border-[#3d362a] text-zinc-500 hover:text-white text-[10px] leading-none">${delta < 0 ? '−' : '+'}</button>`;
-
-        const dotRow = (type, label, color) => {
-            const max = creature[type + 'Max'] || 0;
-            if (max === 0) return '';
-            const filled = creature[type + 'Filled'] || 0;
-            return `
-                <div class="mb-2.5">
-                    <div class="flex items-center justify-between mb-1">
-                        <div class="flex items-center gap-1.5">
-                            <span class="text-[10px] font-bold ${color} uppercase tracking-wide">${label}</span>
-                            ${adjBtn(type, -1)}${adjBtn(type, 1)}
-                        </div>
-                        <span class="text-[10px] text-zinc-600">${filled}/${max}</span>
-                    </div>
-                    <div class="flex flex-wrap gap-1.5">${renderDots(creature, type)}</div>
-                </div>`;
-        };
-
-        const evasion = creature.evasion || 0;
-
-        return `
-            <div class="flex justify-between items-start mb-3">
-                <div class="flex items-center gap-2">
-                    ${dead ? '<span class="text-red-500 text-sm">💀</span>' : '<span class="text-zinc-600 text-sm">⚔️</span>'}
-                    <span class="font-black text-sm uppercase font-[Cinzel] ${dead ? 'text-zinc-600 line-through' : 'text-[#f5efe6]'}">${creature.name}</span>
-                </div>
-                <button onclick="removeCreature('${creature.id}', event)" class="text-zinc-700 hover:text-red-500 text-sm leading-none">✕</button>
+<!-- Add Enemy Modal (SRD search) -->
+<div id="enemyModal" class="fixed inset-0 modal-overlay hidden z-50 p-4 overflow-y-auto flex items-center justify-center" onclick="if(event.target===this)closeEnemyModal()">
+    <div class="modal-panel p-6 w-full max-w-md">
+        <div class="flex justify-between items-center border-b border-[#363026] pb-3 mb-5">
+            <h2 class="font-black text-base uppercase font-[Cinzel] tracking-wide" style="color: var(--accent-1)">Add Enemy</h2>
+            <button onclick="closeEnemyModal()" class="text-[#6b5d4d] hover:text-white text-2xl leading-none">✕</button>
+        </div>
+        <div class="space-y-4">
+            <div class="relative">
+                <label class="text-[10px] text-zinc-500 uppercase tracking-wide font-bold block mb-1">Search Adversary</label>
+                <input id="enemySearch" type="text" placeholder="Type to search..." autocomplete="off" class="w-full bg-[#1a1714] border border-[#4a3f30] rounded-lg px-4 py-3 text-sm outline-none focus:border-[#d4a017]">
+                <div id="enemyResults" class="absolute z-10 w-full mt-1 max-h-48 overflow-y-auto rounded-lg border border-[#4a3f30] bg-[#1e1b16] hidden"></div>
             </div>
-            ${evasion > 0 ? `
-            <div class="flex items-center gap-2 mb-3 pb-2.5 border-b border-[#2a2418]">
-                <span class="text-[10px] font-bold text-blue-300 uppercase tracking-wide">Evasion</span>
-                ${adjBtn('evasion', -1)}
-                <span class="text-sm font-bold text-blue-200">${evasion}</span>
-                ${adjBtn('evasion', 1)}
-            </div>` : ''}
-            ${dotRow('hp', 'HP', 'text-red-400')}
-            ${dotRow('stress', 'Stress', 'text-purple-400')}
-            ${dotRow('hope', 'Hope', 'text-amber-400')}
-            ${dotRow('armor', 'Armor', 'text-blue-400')}
-        `;
-    }
-
-    function renderGrid() {
-        const grid = document.getElementById('creatureGrid');
-
-        if (creatures.length === 0 && actionCounters.length === 0) {
-            grid.innerHTML = '<div id="emptyState" class="col-span-full text-center py-20"><div class="text-zinc-600 text-sm italic">No creatures yet. Click "+ Add Creature" to get started.</div></div>';
-            return;
-        }
-
-        grid.innerHTML = '';
-        // Counters always first
-        actionCounters.forEach(c => {
-            const div = document.createElement('div');
-            div.innerHTML = buildCounterCard(c);
-            grid.appendChild(div.firstElementChild);
-        });
-        creatures.forEach(creature => {
-            const dead = isCreatureDead(creature);
-            const div = document.createElement('div');
-            div.id = creature.id;
-            div.className = `creature-card ${dead ? 'dead' : ''}`;
-            div.innerHTML = buildCardInner(creature, dead);
-            grid.appendChild(div);
-        });
-    }
-
-    function clearCreatures(event) {
-        if (event) { event.stopPropagation(); event.preventDefault(); }
-        if (!confirm('Remove all creatures?')) return;
-        creatures = [];
-        autoCache();
-        renderGrid();
-    }
-
-    function clearCounters(event) {
-        if (event) { event.stopPropagation(); event.preventDefault(); }
-        if (!confirm('Remove all counters?')) return;
-        actionCounters = [];
-        autoCache();
-        renderGrid();
-    }
-
-    function clearAll(event) {
-        if (event) { event.stopPropagation(); event.preventDefault(); }
-        if (!confirm('Clear all creatures, counters and fear pool? This cannot be undone.')) return;
-        creatures = [];
-        actionCounters = [];
-        fearFilled = 0;
-        localStorage.setItem(FEAR_KEY, 0);
-        autoCache();
-        renderFearDots();
-        renderGrid();
-    }
-
-    // Init
-    window.onload = () => {
-        const raw = localStorage.getItem(SAVE_KEY);
-        if (raw) {
-            try { creatures = JSON.parse(raw) || []; } catch { creatures = []; }
-        }
-        fearFilled = parseInt(localStorage.getItem(FEAR_KEY)) || 0;
-        renderFearDots();
-        try { actionCounters = JSON.parse(localStorage.getItem(COUNTERS_KEY)) || []; } catch { actionCounters = []; }
-        const savedCampaign = localStorage.getItem(CAMPAIGN_KEY) || '';
-        const cnInput = document.getElementById('campaignName');
-        cnInput.value = savedCampaign;
-        if (savedCampaign) cnInput.style.width = Math.min(savedCampaign.length + 2, 56) + 'ch';
-        renderGrid();
-
-        // Close modal on Escape
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') { closeAddModal(); closeCardModal(); }
-            if (e.key === 'Enter' && !document.getElementById('addModal').classList.contains('hidden')) addCreatures();
-        });
-
-        // Init compendium
-        loadCompendium();
-    };
-
-    // ========== TAB SWITCHING ==========
-    function switchTab(tab) {
-        document.getElementById('panelTracker').classList.toggle('hidden', tab !== 'tracker');
-        document.getElementById('panelCompendium').classList.toggle('hidden', tab !== 'compendium');
-        document.getElementById('panelSupport').classList.toggle('hidden', tab !== 'support');
-        document.getElementById('tabTracker').classList.toggle('active', tab === 'tracker');
-        document.getElementById('tabCompendium').classList.toggle('active', tab === 'compendium');
-        document.getElementById('tabSupport').classList.toggle('active', tab === 'support');
-        document.getElementById('trackerActions').classList.toggle('hidden', tab !== 'tracker');
-    }
-
-    // ========== COMPENDIUM ==========
-    const GITHUB_RAW = "https://raw.githubusercontent.com/daggersearch/daggerheart-data/main/core/";
-    const CATEGORIES = ['ancestries','armors','classes','communities','consumables','domain-cards','items','rules','subclasses','weapons'];
-    const COMPENDIUM_CACHE_KEY = 'dh_compendium_cache';
-    let compendiumData = []; // flat array of {category, ...itemFields}
-    let activeCategory = 'all';
-    let searchTimeout = null;
-
-    async function loadCompendium() {
-        // Try localStorage cache first
-        const cached = localStorage.getItem(COMPENDIUM_CACHE_KEY);
-        if (cached) {
-            try {
-                compendiumData = JSON.parse(cached);
-                document.getElementById('compendiumStatus').textContent = `${compendiumData.length} entries loaded. Start typing to search.`;
-                return;
-            } catch { /* fall through to fetch */ }
-        }
-
-        document.getElementById('compendiumStatus').textContent = 'Fetching compendium data...';
-
-        try {
-            const results = await Promise.all(
-                CATEGORIES.map(cat =>
-                    fetch(GITHUB_RAW + cat + '.json')
-                        .then(r => r.json())
-                        .then(data => {
-                            const items = Array.isArray(data) ? data : (data.items || data.entries || Object.values(data));
-                            return items.map(item => ({ ...item, _category: cat }));
-                        })
-                        .catch(() => [])
-                )
-            );
-            compendiumData = results.flat();
-            localStorage.setItem(COMPENDIUM_CACHE_KEY, JSON.stringify(compendiumData));
-            document.getElementById('compendiumStatus').textContent = `${compendiumData.length} entries loaded. Start typing to search.`;
-        } catch (err) {
-            document.getElementById('compendiumStatus').textContent = 'Failed to load compendium data. Check your connection.';
-        }
-    }
-
-    // Category filter definitions: { field, label, values[] }
-    const CATEGORY_FILTERS = {
-        'weapons': [
-            { field: 'tier', label: 'Tier', values: ['1','2','3','4'] },
-            { field: 'damage.type', label: 'Damage', values: ['PHYSICAL','MAGIC'] },
-            { field: 'range', label: 'Range', values: ['MELEE','RANGED'] },
-            { field: 'burden', label: 'Hands', values: ['ONE_HANDED','TWO_HANDED'] },
-            { field: 'trait', label: 'Trait', values: ['AGILITY','STRENGTH','FINESSE','INSTINCT','PRESENCE','KNOWLEDGE'] },
-        ],
-        'armors': [
-            { field: 'tier', label: 'Tier', values: ['1','2','3','4'] },
-            { field: 'baseScore', label: 'Score', values: ['2','3','4','5','6'] },
-        ],
-        'domain-cards': [
-            { field: 'domain', label: 'Domain', values: ['ARCANA','BLADE','BONE','CODEX','GRACE','MIDNIGHT','SAGE','SPLENDOR','VALOR'] },
-            { field: 'type', label: 'Type', values: ['ABILITY','SPELL'] },
-            { field: 'level', label: 'Level', values: ['1','2','3','4','5','6','7','8','9','10'] },
-        ],
-        'subclasses': [
-            { field: 'class', label: 'Class', values: ['BARD','DRUID','GUARDIAN','RANGER','ROGUE','SERAPH','SORCERER','WARRIOR','WIZARD'] },
-            { field: 'spellcastTrait', label: 'Spellcast', values: ['AGILITY','STRENGTH','FINESSE','INSTINCT','PRESENCE','KNOWLEDGE'] },
-        ],
-        'classes': [
-            { field: 'domains_includes', label: 'Domain', values: ['ARCANA','BLADE','BONE','CODEX','GRACE','MIDNIGHT','SAGE','SPLENDOR','VALOR'] },
-        ],
-    };
-
-    let activeFilters = {}; // { fieldKey: selectedValue }
-
-    function setCategory(cat) {
-        activeCategory = cat;
-        activeFilters = {};
-        document.querySelectorAll('#categoryFilters .filter-pill').forEach(btn => {
-            btn.classList.toggle('active', btn.textContent.trim().toLowerCase().replace(' ', '-') === cat || (cat === 'all' && btn.textContent.trim().toLowerCase() === 'all'));
-        });
-        renderContextFilters();
-        runSearch();
-    }
-
-    function renderContextFilters() {
-        const container = document.getElementById('contextFilters');
-        const filterDefs = CATEGORY_FILTERS[activeCategory];
-
-        if (!filterDefs) {
-            container.classList.add('hidden');
-            container.innerHTML = '';
-            return;
-        }
-
-        container.classList.remove('hidden');
-        container.innerHTML = filterDefs.map(f => {
-            const selected = activeFilters[f.field] || '';
-            const options = f.values.map(v => {
-                const label = v.replace(/_/g, ' ');
-                return `<option value="${escHtml(v)}" ${selected === v ? 'selected' : ''}>${label}</option>`;
-            }).join('');
-            return `
-                <div class="flex flex-col">
-                    <label class="text-[9px] text-zinc-500 uppercase tracking-wide font-bold mb-0.5">${escHtml(f.label)}</label>
-                    <select onchange="setFilter('${f.field}', this.value)" class="bg-[#1e1b16] border border-[#4a3f30] rounded-lg px-2 py-1.5 text-[11px] outline-none focus:border-[#d4a017] cursor-pointer">
-                        <option value="">All</option>
-                        ${options}
-                    </select>
-                </div>
-            `;
-        }).join('');
-    }
-
-    function setFilter(field, value) {
-        if (value) {
-            activeFilters[field] = value;
-        } else {
-            delete activeFilters[field];
-        }
-        runSearch();
-    }
-
-    function getNestedField(item, field) {
-        // Handle special cases
-        if (field === 'domains_includes') return item.domains || [];
-        // Handle dot notation e.g. 'damage.type'
-        const parts = field.split('.');
-        let val = item;
-        for (const p of parts) {
-            if (val == null) return undefined;
-            val = val[p];
-        }
-        return val;
-    }
-
-    function itemMatchesFilters(item) {
-        for (const [field, expected] of Object.entries(activeFilters)) {
-            const actual = getNestedField(item, field);
-            if (field === 'domains_includes') {
-                // Array includes check
-                if (!Array.isArray(actual) || !actual.includes(expected)) return false;
-            } else {
-                // Direct comparison (coerce to string for number fields like tier)
-                if (String(actual) !== String(expected)) return false;
-            }
-        }
-        return true;
-    }
-
-    function runSearch() {
-        const query = document.getElementById('compendiumSearch').value.trim().toLowerCase();
-        const resultsEl = document.getElementById('compendiumResults');
-        const statusEl = document.getElementById('compendiumStatus');
-
-        let filtered = compendiumData;
-
-        // Filter by category
-        if (activeCategory !== 'all') {
-            filtered = filtered.filter(item => item._category === activeCategory);
-        }
-
-        // Apply contextual dropdown filters
-        if (Object.keys(activeFilters).length > 0) {
-            filtered = filtered.filter(item => itemMatchesFilters(item));
-        }
-
-        // Filter by search query
-        if (query.length > 0) {
-            filtered = filtered.filter(item => {
-                const name = getLocStr(item.name).toLowerCase();
-                const desc = Array.isArray(item.description)
-                    ? item.description.map(d => d.paragraph ? getLocStr(d.paragraph) : (d.list ? d.list.map(li => getLocStr(li)).join(' ') : '')).join(' ').toLowerCase()
-                    : (typeof item.description === 'string' ? item.description.toLowerCase() : '');
-                // Search inside features
-                let featText = '';
-                const featureSources = [
-                    item.features,
-                    item.classFeatures,
-                    item.foundation && item.foundation.features,
-                    item.specialization && item.specialization.features,
-                    item.mastery && item.mastery.features,
-                    item.hopeFeature ? [item.hopeFeature] : null
-                ];
-                for (const src of featureSources) {
-                    if (!Array.isArray(src)) continue;
-                    for (const f of src) {
-                        if (f.name) featText += ' ' + getLocStr(f.name).toLowerCase();
-                        if (f.description && Array.isArray(f.description)) {
-                            featText += ' ' + f.description.map(d => d.paragraph ? getLocStr(d.paragraph) : '').join(' ').toLowerCase();
-                        }
-                    }
-                }
-                return name.includes(query) || desc.includes(query) || featText.includes(query);
-            });
-        }
-
-        // Limit results
-        const limited = filtered.slice(0, 60);
-
-        if (query.length === 0 && activeCategory === 'all' && Object.keys(activeFilters).length === 0) {
-            resultsEl.innerHTML = '';
-            statusEl.textContent = `${compendiumData.length} entries loaded. Start typing to search.`;
-            statusEl.classList.remove('hidden');
-            return;
-        }
-
-        if (filtered.length === 0) {
-            resultsEl.innerHTML = '';
-            statusEl.textContent = 'No results found.';
-            statusEl.classList.remove('hidden');
-            return;
-        }
-
-        statusEl.textContent = filtered.length > 60 ? `Showing 60 of ${filtered.length} results.` : `${filtered.length} result${filtered.length > 1 ? 's' : ''}.`;
-        statusEl.classList.remove('hidden');
-
-        resultsEl.innerHTML = limited.map(item => renderCompendiumCard(item)).join('');
-    }
-
-    function renderCompendiumCard(item) {
-        const cat = item._category;
-        const name = getLocStr(item.name) || item.title || 'Unnamed';
-        const catClass = 'cat-' + cat;
-
-        let body = '';
-        switch(cat) {
-            case 'weapons':
-                body = renderWeaponCard(item);
-                break;
-            case 'armors':
-                body = renderArmorCard(item);
-                break;
-            case 'classes':
-                body = renderClassCard(item);
-                break;
-            case 'subclasses':
-                body = renderSubclassCard(item);
-                break;
-            case 'ancestries':
-                body = renderAncestryCard(item);
-                break;
-            case 'communities':
-                body = renderCommunityCard(item);
-                break;
-            case 'domain-cards':
-                body = renderDomainCard(item);
-                break;
-            case 'consumables':
-                body = renderConsumableCard(item);
-                break;
-            case 'items':
-                body = renderItemCard(item);
-                break;
-            case 'rules':
-                body = renderRuleCard(item);
-                break;
-
-            default:
-                body = renderGenericCard(item);
-        }
-
-        return `
-            <div class="compendium-card border-t-3 ${catClass} cursor-pointer" style="border-top: 3px solid" onclick="openCardModal(${compendiumData.indexOf(item)})">
-                <div class="flex items-start justify-between mb-2">
-                    <span class="font-black text-sm font-[Cinzel] text-[#f5efe6]">${escHtml(name)}</span>
-                    <span class="card-category ${catClass} ml-2 whitespace-nowrap">${cat.replace('-', ' ')}</span>
-                </div>
-                ${body}
+            <div id="enemyPreview" class="hidden border border-[#3d362a] rounded-xl p-4 bg-[#1a1714]"></div>
+            <div>
+                <label class="text-[10px] text-zinc-500 uppercase tracking-wide font-bold block mb-1">Quantity</label>
+                <input id="enemyQty" type="number" value="1" min="1" max="20" class="w-full bg-[#1a1714] border border-[#4a3f30] rounded-lg px-4 py-3 text-sm outline-none focus:border-[#d4a017]">
+                <div class="text-[10px] text-zinc-600 mt-1">Quantity &gt; 1 will create "Name 1", "Name 2", etc.</div>
             </div>
-        `;
-    }
+        </div>
+        <div class="flex gap-3 mt-6">
+            <button id="enemyAddBtn" onclick="addEnemy()" disabled class="flex-1 btn-action text-xs py-3 rounded-xl font-bold uppercase text-white opacity-50 cursor-not-allowed">Add</button>
+            <button onclick="closeEnemyModal()" class="flex-1 bg-[#2a2418] border border-[#3d362a] text-xs py-3 rounded-xl font-bold uppercase text-[#a89880]">Cancel</button>
+        </div>
+    </div>
+</div>
 
-    function renderDescBlocks(descArr) {
-        if (!descArr || !Array.isArray(descArr)) return '';
-        return descArr.map(d => {
-            if (d.paragraph) return `<p>${escHtml(getLocStr(d.paragraph))}</p>`;
-            if (d.list) return `<ul class="ml-4 list-disc">${d.list.map(li => `<li>${escHtml(getLocStr(li))}</li>`).join('')}</ul>`;
-            return '';
-        }).join('');
-    }
-
-    function renderWeaponCard(item) {
-        let html = '';
-        const type = (item.type || '').replace(/_/g, ' ');
-        const burden = (item.burden || '').replace(/_/g, ' ');
-        html += `<div class="flex flex-wrap gap-2 mb-1.5">`;
-        if (type) html += `<span class="text-[9px] bg-[#2a2418] border border-[#3d362a] rounded px-1.5 py-0.5 text-zinc-400">${escHtml(type)}</span>`;
-        if (item.range) html += `<span class="text-[9px] bg-[#2a2418] border border-[#3d362a] rounded px-1.5 py-0.5 text-zinc-400">${escHtml(item.range)}</span>`;
-        if (burden) html += `<span class="text-[9px] bg-[#2a2418] border border-[#3d362a] rounded px-1.5 py-0.5 text-zinc-400">${escHtml(burden)}</span>`;
-        if (item.tier) html += `<span class="text-[9px] bg-[#2a2418] border border-[#3d362a] rounded px-1.5 py-0.5 text-zinc-400">Tier ${item.tier}</span>`;
-        html += `</div>`;
-        if (item.damage) {
-            let dmg = item.damage.dice || '';
-            if (item.damage.modifier) dmg += `+${item.damage.modifier}`;
-            if (item.damage.type) dmg += ` ${item.damage.type.toLowerCase()}`;
-            html += `<div class="text-xs text-red-300 mb-1">⚔️ ${escHtml(dmg)}</div>`;
-        }
-        if (item.trait) html += `<div class="text-xs text-amber-300 mb-1">Trait: ${escHtml(item.trait)}</div>`;
-        if (item.features && item.features.length) {
-            html += item.features.map(f => {
-                const fname = f.name ? getLocStr(f.name) : '';
-                const fdesc = f.description ? renderDescBlocks(f.description) : '';
-                return `<div class="mt-1"><span class="text-[10px] font-bold text-amber-200">${escHtml(fname)}</span> <span class="text-xs text-zinc-500">${fdesc}</span></div>`;
-            }).join('');
-        }
-        return html;
-    }
-
-    function renderArmorCard(item) {
-        let html = '';
-        html += `<div class="flex flex-wrap gap-2 mb-1.5">`;
-        if (item.tier) html += `<span class="text-[9px] bg-[#2a2418] border border-[#3d362a] rounded px-1.5 py-0.5 text-zinc-400">Tier ${item.tier}</span>`;
-        if (item.baseScore) html += `<span class="text-[9px] bg-[#1a2a3b] border border-[#2a3d5a] rounded px-1.5 py-0.5 text-blue-300">Score ${item.baseScore}</span>`;
-        if (item.baseMajorThreshold) html += `<span class="text-[9px] bg-[#2a2418] border border-[#3d362a] rounded px-1.5 py-0.5 text-amber-300">Major ${item.baseMajorThreshold}+</span>`;
-        if (item.baseSevereThreshold) html += `<span class="text-[9px] bg-[#2a1a1a] border border-[#3d2a2a] rounded px-1.5 py-0.5 text-red-300">Severe ${item.baseSevereThreshold}+</span>`;
-        html += `</div>`;
-        if (item.features && item.features.length) {
-            html += item.features.map(f => {
-                const fname = f.name ? getLocStr(f.name) : '';
-                const fdesc = f.description ? renderDescBlocks(f.description) : '';
-                return `<div class="mt-1"><span class="text-[10px] font-bold text-blue-200">${escHtml(fname)}</span> <span class="text-xs text-zinc-400">${fdesc}</span></div>`;
-            }).join('');
-        }
-        return html;
-    }
-
-    function renderClassCard(item) {
-        let html = '';
-        html += `<div class="flex flex-wrap gap-2 mb-1.5">`;
-        if (item.domains && item.domains.length) html += item.domains.map(d => `<span class="text-[9px] bg-[#2a2418] border border-[#3d362a] rounded px-1.5 py-0.5 text-pink-300">${escHtml(d)}</span>`).join('');
-        if (item.startingHitPoints) html += `<span class="text-[9px] bg-[#2a2418] border border-[#3d362a] rounded px-1.5 py-0.5 text-red-300">HP ${item.startingHitPoints}</span>`;
-        if (item.startingEvasion) html += `<span class="text-[9px] bg-[#2a2418] border border-[#3d362a] rounded px-1.5 py-0.5 text-blue-300">Evasion ${item.startingEvasion}</span>`;
-        html += `</div>`;
-        if (item.description && Array.isArray(item.description)) {
-            const desc = renderDescBlocks(item.description);
-            html += `<div class="text-xs text-zinc-500 mb-2">${desc}</div>`;
-        }
-        if (item.hopeFeature) {
-            const fname = item.hopeFeature.name ? getLocStr(item.hopeFeature.name) : '';
-            const fdesc = item.hopeFeature.description ? renderDescBlocks(item.hopeFeature.description) : '';
-            html += `<div class="mt-1.5"><span class="text-[9px] font-bold text-zinc-500 uppercase">Hope Feature</span></div>`;
-            html += `<div class="mt-0.5"><span class="text-[10px] font-bold text-pink-200">${escHtml(fname)}</span> <span class="text-xs text-zinc-400">${fdesc}</span></div>`;
-        }
-        if (item.classFeatures && item.classFeatures.length) {
-            html += `<div class="mt-1.5"><span class="text-[9px] font-bold text-zinc-500 uppercase">Class Features</span></div>`;
-            html += item.classFeatures.map(f => {
-                const fname = f.name ? getLocStr(f.name) : '';
-                return `<div class="mt-0.5"><span class="text-[10px] font-bold text-pink-200">${escHtml(fname)}</span></div>`;
-            }).join('');
-        }
-        return html;
-    }
-
-    function renderSubclassCard(item) {
-        let html = '';
-        html += `<div class="flex flex-wrap gap-2 mb-1.5">`;
-        if (item.class) html += `<span class="text-[9px] bg-[#2a2418] border border-[#3d362a] rounded px-1.5 py-0.5 text-zinc-400">${escHtml(item.class)}</span>`;
-        if (item.domains && item.domains.length) html += item.domains.map(d => `<span class="text-[9px] bg-[#2a2418] border border-[#3d362a] rounded px-1.5 py-0.5 text-pink-300">${escHtml(d)}</span>`).join('');
-        if (item.spellcastTrait) html += `<span class="text-[9px] bg-[#2a2418] border border-[#3d362a] rounded px-1.5 py-0.5 text-amber-300">Spellcast: ${escHtml(item.spellcastTrait)}</span>`;
-        html += `</div>`;
-        if (item.foundation && item.foundation.features) {
-            html += `<div class="mt-1.5"><span class="text-[9px] font-bold text-zinc-500 uppercase">Foundation</span></div>`;
-            html += item.foundation.features.map(f => {
-                const fname = f.name ? getLocStr(f.name) : '';
-                const fdesc = f.description ? renderDescBlocks(f.description) : '';
-                return `<div class="mt-0.5"><span class="text-[10px] font-bold text-pink-200">${escHtml(fname)}</span> <span class="text-xs text-zinc-500">${fdesc}</span></div>`;
-            }).join('');
-        }
-        if (item.specialization && item.specialization.features) {
-            html += `<div class="mt-1.5"><span class="text-[9px] font-bold text-zinc-500 uppercase">Specialization</span></div>`;
-            html += item.specialization.features.map(f => {
-                const fname = f.name ? getLocStr(f.name) : '';
-                return `<div class="mt-0.5"><span class="text-[10px] font-bold text-pink-200">${escHtml(fname)}</span></div>`;
-            }).join('');
-        }
-        if (item.mastery && item.mastery.features) {
-            html += `<div class="mt-1.5"><span class="text-[9px] font-bold text-zinc-500 uppercase">Mastery</span></div>`;
-            html += item.mastery.features.map(f => {
-                const fname = f.name ? getLocStr(f.name) : '';
-                return `<div class="mt-0.5"><span class="text-[10px] font-bold text-pink-200">${escHtml(fname)}</span></div>`;
-            }).join('');
-        }
-        return html;
-    }
-
-    function renderAncestryCard(item) {
-        let html = '';
-        if (item.description && Array.isArray(item.description)) {
-            const desc = renderDescBlocks(item.description);
-            html += `<div class="text-xs text-zinc-500 mb-2">${desc}</div>`;
-        }
-        if (item.features && item.features.length) {
-            html += item.features.map(f => {
-                const fname = f.name ? getLocStr(f.name) : '';
-                const fdesc = f.description ? renderDescBlocks(f.description) : '';
-                return `<div class="mt-1"><span class="text-[10px] font-bold text-green-200">${escHtml(fname)}</span> <span class="text-xs text-zinc-400">${fdesc}</span></div>`;
-            }).join('');
-        }
-        return html;
-    }
-
-    function renderCommunityCard(item) {
-        let html = '';
-        if (item.description && Array.isArray(item.description)) {
-            const desc = renderDescBlocks(item.description);
-            html += `<div class="text-xs text-zinc-500 mb-2">${desc}</div>`;
-        }
-        if (item.personalities && item.personalities.length) {
-            html += `<div class="flex flex-wrap gap-1 mb-2">${item.personalities.map(p => `<span class="text-[9px] bg-[#2a2418] border border-[#3d362a] rounded px-1.5 py-0.5 text-yellow-300">${escHtml(getLocStr(p))}</span>`).join('')}</div>`;
-        }
-        if (item.features && item.features.length) {
-            html += item.features.map(f => {
-                const fname = f.name ? getLocStr(f.name) : '';
-                const fdesc = f.description ? renderDescBlocks(f.description) : '';
-                return `<div class="mt-1"><span class="text-[10px] font-bold text-yellow-200">${escHtml(fname)}</span> <span class="text-xs text-zinc-400">${fdesc}</span></div>`;
-            }).join('');
-        }
-        return html;
-    }
-
-    function renderDomainCard(item) {
-        let html = '';
-        html += `<div class="flex flex-wrap gap-2 mb-1.5">`;
-        if (item.domain) html += `<span class="text-[9px] bg-[#1a2a2a] border border-[#2a3d3d] rounded px-1.5 py-0.5 text-cyan-300">${escHtml(item.domain)}</span>`;
-        if (item.type) html += `<span class="text-[9px] bg-[#2a2418] border border-[#3d362a] rounded px-1.5 py-0.5 text-zinc-400">${escHtml(item.type)}</span>`;
-        if (item.level !== undefined) html += `<span class="text-[9px] bg-[#2a2418] border border-[#3d362a] rounded px-1.5 py-0.5 text-zinc-400">Lv ${item.level}</span>`;
-        if (item.recallCost !== undefined) html += `<span class="text-[9px] bg-[#2a2418] border border-[#3d362a] rounded px-1.5 py-0.5 text-amber-300">Recall: ${item.recallCost}</span>`;
-        html += `</div>`;
-        if (item.features && item.features.length) {
-            html += item.features.map(f => {
-                const fname = f.name ? getLocStr(f.name) : '';
-                const fdesc = f.description ? renderDescBlocks(f.description) : '';
-                return `<div class="mt-1">${fname ? `<span class="text-[10px] font-bold text-cyan-200">${escHtml(fname)}</span> ` : ''}<span class="text-xs text-zinc-400">${fdesc}</span></div>`;
-            }).join('');
-        }
-        return html;
-    }
-
-    function renderConsumableCard(item) {
-        let html = '';
-        if (item.features && item.features.length) {
-            html += item.features.map(f => {
-                const fname = f.name ? getLocStr(f.name) : '';
-                const fdesc = f.description ? renderDescBlocks(f.description) : '';
-                return `<div class="mt-1">${fname ? `<span class="text-[10px] font-bold text-emerald-200">${escHtml(fname)}</span> ` : ''}<span class="text-xs text-emerald-300">${fdesc}</span></div>`;
-            }).join('');
-        }
-        return html;
-    }
-
-    function renderItemCard(item) {
-        let html = '';
-        if (item.features && item.features.length) {
-            html += item.features.map(f => {
-                const fname = f.name ? getLocStr(f.name) : '';
-                const fdesc = f.description ? renderDescBlocks(f.description) : '';
-                return `<div class="mt-1">${fname ? `<span class="text-[10px] font-bold text-purple-200">${escHtml(fname)}</span> ` : ''}<span class="text-xs text-zinc-400">${fdesc}</span></div>`;
-            }).join('');
-        }
-        return html;
-    }
-
-    function renderRuleCard(item) {
-        let html = '';
-        if (item.description && Array.isArray(item.description)) {
-            html += item.description.slice(0, 3).map(block => {
-                if (block.paragraph) return `<p class="text-xs text-zinc-400 mt-1">${escHtml(getLocStr(block.paragraph))}</p>`;
-                if (block.list) return `<ul class="text-xs text-zinc-500 mt-1 ml-3 list-disc">${block.list.slice(0, 4).map(li => `<li class="mb-0.5">${escHtml(getLocStr(li))}</li>`).join('')}${block.list.length > 4 ? '<li class="text-zinc-600">...</li>' : ''}</ul>`;
-                return '';
-            }).join('');
-        }
-        return html;
-    }
-
-
-
-    function renderGenericCard(item) {
-        const desc = item.description || item.text || item.effect || '';
-        return desc ? `<div class="text-xs text-zinc-500 mt-1">${escHtml(desc)}</div>` : '';
-    }
-
-    function getLocStr(obj) {
-        if (!obj) return '';
-        if (typeof obj === 'string') return obj;
-        return obj['en-US'] || obj['en'] || Object.values(obj)[0] || '';
-    }
-
-    function escHtmlAttr(str) {
-        if (!str) return '';
-        return String(str).replace(/&/g,'&amp;').replace(/"/g,'&quot;');
-    }
-
-    function escHtml(str) {
-        if (!str) return '';
-        return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-    }
-
-    function openCardModal(index) {
-        const item = compendiumData[index];
-        if (!item) return;
-        const cat = item._category;
-        const name = getLocStr(item.name) || item.title || 'Unnamed';
-        const catClass = 'cat-' + cat;
-        let body = '';
-        switch(cat) {
-            case 'weapons': body = renderWeaponCard(item); break;
-            case 'armors': body = renderArmorCard(item); break;
-            case 'classes': body = renderClassCard(item); break;
-            case 'subclasses': body = renderSubclassCard(item); break;
-            case 'ancestries': body = renderAncestryCard(item); break;
-            case 'communities': body = renderCommunityCard(item); break;
-            case 'domain-cards': body = renderDomainCard(item); break;
-            case 'consumables': body = renderConsumableCard(item); break;
-            case 'items': body = renderItemCard(item); break;
-            case 'rules': body = renderRuleCard(item); break;
-            default: body = renderGenericCard(item);
-        }
-        document.getElementById('cardModalContent').innerHTML = `
-            <div class="flex items-start justify-between mb-4">
-                <span class="font-black text-2xl font-[Cinzel] text-[#f5efe6]">${escHtml(name)}</span>
-                <span class="card-category ${catClass} ml-2 whitespace-nowrap">${cat.replace('-', ' ')}</span>
+<!-- Add Custom Modal -->
+<div id="customModal" class="fixed inset-0 modal-overlay hidden z-50 p-4 overflow-y-auto flex items-center justify-center" onclick="if(event.target===this)closeCustomModal()">
+    <div class="modal-panel p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+        <div class="flex justify-between items-center border-b border-[#363026] pb-3 mb-5">
+            <h2 class="font-black text-base uppercase font-[Cinzel] tracking-wide" style="color: var(--accent-1)">Add Custom</h2>
+            <button onclick="closeCustomModal()" class="text-[#6b5d4d] hover:text-white text-2xl leading-none">✕</button>
+        </div>
+        <div class="space-y-4">
+            <div>
+                <label class="text-[10px] text-zinc-500 uppercase tracking-wide font-bold block mb-1">Name</label>
+                <input id="customName" type="text" placeholder="Custom adversary name..." class="w-full bg-[#1a1714] border border-[#4a3f30] rounded-lg px-4 py-3 text-sm outline-none focus:border-[#d4a017]">
             </div>
-            <div class="modal-scaled">${body}</div>
-        `;
-        document.getElementById('cardModal').classList.remove('hidden');
-    }
+            <div class="grid grid-cols-3 gap-3">
+                <div>
+                    <label class="text-[10px] text-zinc-500 uppercase tracking-wide font-bold block mb-1">Difficulty</label>
+                    <input id="customDifficulty" type="number" value="10" min="0" max="30" class="w-full bg-[#1a1714] border border-[#4a3f30] rounded-lg px-4 py-3 text-sm outline-none focus:border-[#d4a017]">
+                </div>
+                <div>
+                    <label class="text-[10px] text-zinc-500 uppercase tracking-wide font-bold block mb-1">HP</label>
+                    <input id="customHp" type="number" value="1" min="0" max="30" class="w-full bg-[#1a1714] border border-[#4a3f30] rounded-lg px-4 py-3 text-sm outline-none focus:border-[#d4a017]">
+                </div>
+                <div>
+                    <label class="text-[10px] text-zinc-500 uppercase tracking-wide font-bold block mb-1">Stress</label>
+                    <input id="customStress" type="number" value="0" min="0" max="30" class="w-full bg-[#1a1714] border border-[#4a3f30] rounded-lg px-4 py-3 text-sm outline-none focus:border-[#d4a017]">
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="text-[10px] text-zinc-500 uppercase tracking-wide font-bold block mb-1">Major Threshold</label>
+                    <input id="customMajor" type="number" value="" min="0" max="99" placeholder="e.g. 8" class="w-full bg-[#1a1714] border border-[#4a3f30] rounded-lg px-4 py-3 text-sm outline-none focus:border-[#d4a017]">
+                </div>
+                <div>
+                    <label class="text-[10px] text-zinc-500 uppercase tracking-wide font-bold block mb-1">Severe Threshold</label>
+                    <input id="customSevere" type="number" value="" min="0" max="99" placeholder="e.g. 15" class="w-full bg-[#1a1714] border border-[#4a3f30] rounded-lg px-4 py-3 text-sm outline-none focus:border-[#d4a017]">
+                </div>
+            </div>
+            <div>
+                <label class="text-[10px] text-zinc-500 uppercase tracking-wide font-bold block mb-1">Attack (name, damage, range)</label>
+                <input id="customAtk" type="text" placeholder="e.g. Claws 1d8+3 phy, Melee" class="w-full bg-[#1a1714] border border-[#4a3f30] rounded-lg px-4 py-3 text-sm outline-none focus:border-[#d4a017]">
+            </div>
+            <div>
+                <label class="text-[10px] text-zinc-500 uppercase tracking-wide font-bold block mb-1">Ability</label>
+                <textarea id="customAbility" rows="2" placeholder="Free-form ability description..." class="w-full bg-[#1a1714] border border-[#4a3f30] rounded-lg px-4 py-3 text-sm outline-none focus:border-[#d4a017] resize-none"></textarea>
+            </div>
+            <div>
+                <label class="text-[10px] text-zinc-500 uppercase tracking-wide font-bold block mb-1">Features</label>
+                <textarea id="customFeatures" rows="3" placeholder="One feature per line, e.g.:
+Relentless (3) - Passive: Can be spotlighted 3 times...
+Bite - Action: Mark a Stress to attack..." class="w-full bg-[#1a1714] border border-[#4a3f30] rounded-lg px-4 py-3 text-sm outline-none focus:border-[#d4a017] resize-none"></textarea>
+            </div>
+            <div>
+                <label class="text-[10px] text-zinc-500 uppercase tracking-wide font-bold block mb-1">Quantity</label>
+                <input id="customQty" type="number" value="1" min="1" max="20" class="w-full bg-[#1a1714] border border-[#4a3f30] rounded-lg px-4 py-3 text-sm outline-none focus:border-[#d4a017]">
+                <div class="text-[10px] text-zinc-600 mt-1">Quantity &gt; 1 will create "Name 1", "Name 2", etc.</div>
+            </div>
+        </div>
+        <div class="flex gap-3 mt-6">
+            <button onclick="addCustom()" class="flex-1 btn-action text-xs py-3 rounded-xl font-bold uppercase text-white">Add</button>
+            <button onclick="closeCustomModal()" class="flex-1 bg-[#2a2418] border border-[#3d362a] text-xs py-3 rounded-xl font-bold uppercase text-[#a89880]">Cancel</button>
+        </div>
+    </div>
+</div>
 
-    function closeCardModal() {
-        document.getElementById('cardModal').classList.add('hidden');
-    }
-
-    // Search input listener
-    document.getElementById('compendiumSearch').addEventListener('input', () => {
-        clearTimeout(searchTimeout);
-        searchTimeout = setTimeout(runSearch, 200);
-    });
-</script>
+<script src="js/app.js"></script>
+<script src="js/tracker.js"></script>
+<script src="js/compendium.js"></script>
 </body>
 </html>
