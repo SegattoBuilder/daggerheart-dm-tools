@@ -1,6 +1,6 @@
 # Daggerheart DM Tools
 
-A lightweight combat tracker and compendium search for **Daggerheart TTRPG** DMs, built as a single HTML page with no backend required.
+A lightweight combat tracker and compendium search for **Daggerheart TTRPG** DMs, built as a static site with no backend required.
 
 🎮 Try it live: https://douglasvsegatto.github.io/daggerheart-dm-tools/ — no install needed, just open and play. Your data saves automatically in your browser.
 
@@ -19,13 +19,21 @@ This project is free, open-source, and non-commercial — built purely as a help
 ### ⚔️ Combat Tracker
 
 - **Campaign Name** — Editable title in the nav bar, persisted across sessions
-- **Creature Cards** — Grid of cards with name, Evasion, HP, Stress, Hope, and Armor dots
+- **Add Adversary** — Three ways to add cards to the tracker:
+  - **Character** — Manual entry with name, Evasion, HP, Stress, Hope, Armor, plus optional Attack, Thresholds, Ability, and Features
+  - **Enemy (SRD)** — Search-as-you-type against the [Daggerheart SRD adversaries](https://github.com/seansbox/daggerheart-srd) database; auto-populates Difficulty, HP, Stress, Thresholds, Attack, Features, and more
+  - **Custom** — Build your own adversary with Difficulty, HP, Stress, Thresholds, Attack, Ability, and Features
+- **Creature Cards** — Grid of cards with name, Evasion/Difficulty, HP, Stress, Hope, and Armor dots
+- **Enemy Info Panel** — Enemy and Custom cards display full stat blocks: type, tier, thresholds, attack, abilities, features
 - **Add Multiple** — Create multiple creatures at once (e.g., 3 Goblins → "Goblin 1", "Goblin 2", "Goblin 3")
 - **Clickable Dots** — Toggle HP, Stress, Hope, and Armor by clicking dots (start full, reduce as damage is taken)
 - **Adjust Max** — Inline +/− buttons to change any stat max on the fly
+- **Edit Cards** — ✏️ button on Custom and Character cards to reopen and modify all fields
+- **Card Notes** — 📝 flip button reveals a per-card textarea for DM notes
+- **Drag & Drop** — Reorder creature cards by dragging them
 - **Dead State** — Cards dim with skull icon when HP reaches zero
 - **Fear Pool** — 12 clickable dark purple dots tracked separately for the DM
-- **Action Counters** — Custom labeled counters with +/− buttons, highlighted gold at zero
+- **Action Counters** — Compact labeled counters with +/− buttons, displayed in their own row above creature cards
 - **Save / Load** — Export and import full sessions as JSON files (filename prefixed with campaign name)
 - **Auto-Save** — All changes cached to localStorage automatically
 - **Responsive Grid** — 1 column on mobile, 2 on tablet, 3 on desktop

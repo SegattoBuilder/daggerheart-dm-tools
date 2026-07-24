@@ -624,7 +624,7 @@ function buildCardInner(creature, dead) {
     return `
         <div class="flex justify-between items-start mb-3">
             <div class="flex items-center gap-2">
-                ${dead ? '<span class="text-red-500 text-sm">💀</span>' : (ed ? '<span class="text-zinc-600 text-sm">👹</span>' : '<span class="text-zinc-600 text-sm">⚔️</span>')}
+                ${dead ? '<span class="text-red-500 text-sm">💀</span>' : (ed ? (ed.type === 'Custom' ? '<span class="text-zinc-600 text-sm">⚙️</span>' : '<span class="text-zinc-600 text-sm">👹</span>') : '<span class="text-zinc-600 text-sm">⚔️</span>')}
                 <span class="font-black text-sm uppercase font-[Cinzel] ${dead ? 'text-zinc-600 line-through' : 'text-[#f5efe6]'}">${creature.name}</span>
             </div>
             <div class="flex items-center gap-2">
