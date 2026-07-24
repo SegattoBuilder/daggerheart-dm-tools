@@ -242,7 +242,7 @@ function addCreatures() {
     // Create mode
 
     for (let i = 1; i <= qty; i++) {
-        const creatureName = qty > 1 ? `${name} ${i}` : name;
+        const creatureName = qty > 1 ? `${name} ${i}` : getNextName(name);
         const creature = {
             id: 'c-' + Date.now() + '-' + Math.random().toString(36).substr(2, 6),
             name: creatureName,
@@ -341,7 +341,7 @@ function addEnemy() {
     const evasion = parseInt(selectedEnemy.difficulty) || 10;
 
     for (let i = 1; i <= qty; i++) {
-        const name = qty > 1 ? `${selectedEnemy.name} ${i}` : selectedEnemy.name;
+        const name = qty > 1 ? `${selectedEnemy.name} ${i}` : getNextName(selectedEnemy.name);
         creatures.push({
             id: 'c-' + Date.now() + '-' + Math.random().toString(36).substr(2, 6),
             name,
@@ -482,7 +482,7 @@ function addCustom() {
 
     // Create mode
     for (let i = 1; i <= qty; i++) {
-        const creatureName = qty > 1 ? `${name} ${i}` : name;
+        const creatureName = qty > 1 ? `${name} ${i}` : getNextName(name);
         creatures.push({
             id: 'c-' + Date.now() + '-' + Math.random().toString(36).substr(2, 6),
             name: creatureName,
