@@ -46,9 +46,11 @@ function hasNameConflict(name, excludeId) {
 // ========== TAB SWITCHING ==========
 function switchTab(tab) {
     document.getElementById('panelTracker').classList.toggle('hidden', tab !== 'tracker');
+    document.getElementById('panelAdversaries').classList.toggle('hidden', tab !== 'adversaries');
     document.getElementById('panelCompendium').classList.toggle('hidden', tab !== 'compendium');
     document.getElementById('panelSupport').classList.toggle('hidden', tab !== 'support');
     document.getElementById('tabTracker').classList.toggle('active', tab === 'tracker');
+    document.getElementById('tabAdversaries').classList.toggle('active', tab === 'adversaries');
     document.getElementById('tabCompendium').classList.toggle('active', tab === 'compendium');
     document.getElementById('tabSupport').classList.toggle('active', tab === 'support');
     document.getElementById('trackerActions').classList.toggle('hidden', tab !== 'tracker');
