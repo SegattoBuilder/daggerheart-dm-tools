@@ -2,7 +2,7 @@
 
 A lightweight combat tracker and compendium search for **Daggerheart TTRPG** DMs, built as a static site with no backend required.
 
-🎮 Try it live: https://douglasvsegatto.github.io/daggerheart-dm-tools/ — no install needed, just open and play. Your data saves automatically in your browser.
+🎮 Try it live: https://segattobuilder.github.io/daggerheart-dm-tools/ — no install needed, just open and play. Your data saves automatically in your browser.
 
 ## Disclaimer
 
