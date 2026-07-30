@@ -1,0 +1,131 @@
+/* === Themes: Light Mode Overrides === */
+
+[data-mode="light"] { background-color: #f5f0e8; color: #2a2418; }
+
+[data-mode="light"] .creature-card {
+    background: linear-gradient(145deg, #ffffff, #f9f5ef);
+    border-color: #d4c9b8;
+    box-shadow: 0 2px 8px #0001;
+}
+[data-mode="light"] .creature-card:hover {
+    border-color: #b8a990;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+[data-mode="light"] .compendium-card {
+    background: linear-gradient(145deg, #ffffff, #f9f5ef);
+    border-color: #d4c9b8;
+    box-shadow: 0 2px 8px #0001;
+}
+[data-mode="light"] .compendium-card:hover {
+    border-color: #b8a990;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+/* Dots — light mode socket feel */
+[data-mode="light"] .dot:not([class*="filled-"]) {
+    border-color: #c4b8a8;
+    background: radial-gradient(circle at 35% 35%, #fff 0%, #d4c9b8 70%, #b8a990 100%);
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.12);
+}
+[data-mode="light"] .dot:not([class*="filled-"]):hover {
+    border-color: #a89880;
+}
+
+/* Nav */
+[data-mode="light"] .nav-header {
+    background: linear-gradient(135deg, #f9f5ef 0%, #fff 40%, #f5f0e8 100%) !important;
+    border-color: #d4c9b8 !important;
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.03), 0 2px 8px rgba(0,0,0,0.06);
+}
+[data-mode="light"] .nav-header::after {
+    border-color: rgba(180, 140, 60, 0.2);
+}
+
+/* Modal */
+[data-mode="light"] .modal-overlay { background: rgba(0,0,0,0.4); }
+[data-mode="light"] .modal-panel {
+    background: linear-gradient(145deg, #fff, #f9f5ef);
+    border-color: #d4c9b8;
+}
+
+/* Inputs */
+[data-mode="light"] input, [data-mode="light"] textarea, [data-mode="light"] select {
+    color: #2a2418 !important;
+}
+
+/* Filter pills */
+[data-mode="light"] .filter-pill {
+    background: #f9f5ef;
+    border-color: #d4c9b8;
+    color: #6b5d4d;
+}
+[data-mode="light"] .filter-pill:hover { border-color: #b8a990; color: #4a3f30; }
+[data-mode="light"] .filter-pill.active { border-color: var(--accent-1); color: var(--accent-1); background: #f5f0e0; }
+
+/* Fear pool section */
+[data-mode="light"] .fear-pool {
+    background: linear-gradient(145deg, #fff, #f9f5ef);
+    border-color: #d4c9b8;
+}
+[data-mode="light"] .fear-pool .section-divider::after {
+    background: #f9f5ef;
+}
+
+/* Text overrides */
+[data-mode="light"] .text-\[\#f5efe6\] { color: #2a2418 !important; }
+[data-mode="light"] .text-zinc-400 { color: #5a5045 !important; }
+[data-mode="light"] .text-zinc-500 { color: #6b5d4d !important; }
+[data-mode="light"] .text-zinc-600 { color: #7a6d5d !important; }
+
+/* Background utility overrides */
+[data-mode="light"] .bg-\[\#1a1714\] { background-color: #f5f0e8 !important; }
+[data-mode="light"] .bg-\[\#1e1b16\] { background-color: #fff !important; }
+[data-mode="light"] .bg-\[\#2a2418\] { background-color: #f0ebe3 !important; }
+[data-mode="light"] .bg-\[\#2a1a1a\] { background-color: #faf0f0 !important; }
+[data-mode="light"] .bg-\[\#1a1714\]\/95 { background-color: rgba(245,240,232,0.95) !important; }
+[data-mode="light"] .border-\[\#3d362a\] { border-color: #d4c9b8 !important; }
+[data-mode="light"] .border-\[\#4a3f30\] { border-color: #d4c9b8 !important; }
+[data-mode="light"] .border-\[\#363026\] { border-color: #d4c9b8 !important; }
+[data-mode="light"] .border-\[\#4a2a2a\] { border-color: #e8c8c8 !important; }
+[data-mode="light"] .border-zinc-800 { border-color: #d4c9b8 !important; }
+[data-mode="light"] .bg-black\/40 { background-color: rgba(0,0,0,0.04) !important; }
+[data-mode="light"] .placeholder-zinc-600::placeholder { color: #a89880 !important; }
+[data-mode="light"] .placeholder-zinc-700::placeholder { color: #b8a990 !important; }
+
+/* Creature card content — light mode readability */
+[data-mode="light"] .creature-card .text-\[\#f5efe6\] { color: #2a2418 !important; }
+[data-mode="light"] .creature-card .text-\[\#e8e0d4\] { color: #3d3530 !important; }
+[data-mode="light"] .creature-card .text-zinc-600 { color: #7a6d5d !important; }
+[data-mode="light"] .creature-card .text-zinc-700 { color: #8a7d6d !important; }
+[data-mode="light"] .creature-card .text-zinc-500 { color: #6b5d4d !important; }
+[data-mode="light"] .creature-card .text-zinc-300 { color: #4a3f30 !important; }
+[data-mode="light"] .creature-card .text-blue-300 { color: #1a5276 !important; }
+[data-mode="light"] .creature-card .text-blue-200 { color: #1a5276 !important; }
+[data-mode="light"] .creature-card .text-red-400 { color: #922b21 !important; }
+[data-mode="light"] .creature-card .text-purple-400 { color: #6c3483 !important; }
+[data-mode="light"] .creature-card .text-amber-400 { color: #9a7209 !important; }
+[data-mode="light"] .creature-card .text-amber-200 { color: #7d5c07 !important; }
+[data-mode="light"] .creature-card .text-amber-300 { color: #9a7209 !important; }
+[data-mode="light"] .creature-card .text-red-300 { color: #922b21 !important; }
+[data-mode="light"] .creature-card .text-blue-400 { color: #1a5276 !important; }
+[data-mode="light"] .creature-card .text-red-500 { color: #c0392b !important; }
+[data-mode="light"] .creature-card .bg-\[\#2a2418\] { background-color: #f0ebe3 !important; }
+[data-mode="light"] .creature-card .bg-\[\#1a1714\] { background-color: #f9f5ef !important; }
+[data-mode="light"] .creature-card .border-\[\#2a2418\] { border-color: #d4c9b8 !important; }
+[data-mode="light"] .creature-card .border-\[\#3d362a\] { border-color: #d4c9b8 !important; }
+[data-mode="light"] .creature-card .border-\[\#3d2a2a\] { border-color: #e8c8c8 !important; }
+
+/* Counter cards — light mode */
+[data-mode="light"] .creature-card .font-\[Cinzel\].text-\[\#f5efe6\] { color: #2a2418 !important; }
+
+/* Modal content — light mode */
+[data-mode="light"] .modal-panel .text-\[\#f5efe6\] { color: #2a2418 !important; }
+[data-mode="light"] .modal-panel .bg-\[\#1a1714\] { background-color: #f9f5ef !important; }
+[data-mode="light"] .modal-panel .bg-\[\#2a2418\] { background-color: #f0ebe3 !important; }
+[data-mode="light"] .modal-panel .border-\[\#4a3f30\] { border-color: #d4c9b8 !important; }
+[data-mode="light"] .modal-panel .border-\[\#363026\] { border-color: #d4c9b8 !important; }
+[data-mode="light"] .modal-panel .border-\[\#3d362a\] { border-color: #d4c9b8 !important; }
+[data-mode="light"] .modal-panel .text-zinc-500 { color: #6b5d4d !important; }
+[data-mode="light"] .modal-panel .text-zinc-400 { color: #5a5045 !important; }
+[data-mode="light"] .modal-overlay { background: rgba(0,0,0,0.4) !important; }

@@ -36,6 +36,7 @@ This project is free, open-source, and non-commercial — built purely as a help
 - **Action Counters** — Compact labeled counters with +/− buttons, displayed in their own row above creature cards
 - **Save / Load** — Export and import full sessions as JSON files (filename prefixed with campaign name)
 - **Auto-Save** — All changes cached to localStorage automatically
+- **Dark / Light Mode** — Toggle between dark and light themes; preference persisted in localStorage
 - **Responsive Grid** — 1 column on mobile, 2 on tablet, 3 on desktop
 
 ### 📖 Compendium
@@ -45,3 +46,12 @@ This project is free, open-source, and non-commercial — built purely as a help
 - **Contextual Dropdowns** — Category-specific filters (e.g., Tier, Damage Type, Range, Hands for Weapons; Domain, Type, Level for Domain Cards)
 - **Per-category Card Designs** — Each category renders with relevant fields and color-coded styling
 - **Data Source** — Fetches from [daggerheart-data](https://github.com/daggersearch/daggerheart-data/tree/main/core) and caches in localStorage
+- **Markdown Bold** — SRD text with `**bold**` syntax renders as proper bold in cards
+
+### 🎨 Design
+
+- **CSS-only textures** — Paper grain noise and radial vignette via inline SVG data URIs (no external assets)
+- **Orb/gem tracker dots** — Radial gradients with glow and inset shadows for a polished feel
+- **TCG-style cards** — Card-stock noise texture, multi-layer shadows, hover lift effect, category-colored top borders
+- **Hero nav header** — Parchment texture overlay with corner flourish frame via CSS masks
+- **Modular CSS** — Styles extracted into `css/base.css`, `css/textures.css`, `css/components.css`, `css/themes.css`

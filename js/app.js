@@ -1,3 +1,22 @@
+// ========== MODE TOGGLE ==========
+const MODE_KEY = 'dh_dm_mode';
+
+function toggleMode() {
+    const isLight = document.body.getAttribute('data-mode') === 'light';
+    const newMode = isLight ? 'dark' : 'light';
+    document.body.setAttribute('data-mode', newMode);
+    localStorage.setItem(MODE_KEY, newMode);
+    document.getElementById('modeToggleIcon').textContent = newMode === 'light' ? '☀️' : '🌙';
+}
+
+function initMode() {
+    const saved = localStorage.getItem(MODE_KEY) || 'dark';
+    document.body.setAttribute('data-mode', saved);
+    const chk = document.getElementById('modeToggleChk');
+    if (chk) chk.checked = saved === 'light';
+    document.getElementById('modeToggleIcon').textContent = saved === 'light' ? '☀️' : '🌙';
+}
+
 // ========== SHARED CONSTANTS ==========
 const SAVE_KEY = 'dh_dm_creatures';
 const FEAR_KEY = 'dh_dm_fear';
@@ -17,7 +36,7 @@ function escHtmlAttr(str) {
 
 function escHtml(str) {
     if (!str) return '';
-    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
 }
 
 function getLocStr(obj) {
@@ -58,6 +77,7 @@ function switchTab(tab) {
 
 // ========== INIT ==========
 window.onload = () => {
+    initMode();
     const raw = localStorage.getItem(SAVE_KEY);
     if (raw) {
         try { creatures = JSON.parse(raw) || []; } catch { creatures = []; }
