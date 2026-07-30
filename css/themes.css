@@ -128,4 +128,8 @@
 [data-mode="light"] .modal-panel .border-\[\#3d362a\] { border-color: #d4c9b8 !important; }
 [data-mode="light"] .modal-panel .text-zinc-500 { color: #6b5d4d !important; }
 [data-mode="light"] .modal-panel .text-zinc-400 { color: #5a5045 !important; }
+
+/* Enemy search dropdown — light mode */
+[data-mode="light"] .modal-panel .hover\:bg-\[\#2a2418\]:hover { background-color: #f0ebe3 !important; }
+[data-mode="light"] .modal-panel .bg-\[\#1e1b16\] { background-color: #fff !important; }
 [data-mode="light"] .modal-overlay { background: rgba(0,0,0,0.4) !important; }

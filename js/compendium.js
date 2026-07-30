@@ -478,6 +478,11 @@ function closeCardModal() {
     document.getElementById('cardModal').classList.add('hidden');
 }
 
+function clearCompendiumSearch() {
+    document.getElementById('compendiumSearch').value = '';
+    setCategory('all');
+}
+
 // ========== SEARCH INPUT LISTENER ==========
 document.getElementById('compendiumSearch').addEventListener('input', () => {
     clearTimeout(searchTimeout);
