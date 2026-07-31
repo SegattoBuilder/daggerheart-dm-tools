@@ -133,3 +133,9 @@
 [data-mode="light"] .modal-panel .hover\:bg-\[\#2a2418\]:hover { background-color: #f0ebe3 !important; }
 [data-mode="light"] .modal-panel .bg-\[\#1e1b16\] { background-color: #fff !important; }
 [data-mode="light"] .modal-overlay { background: rgba(0,0,0,0.4) !important; }
+
+/* Support tab link hover — follows theme accent */
+.support-link:hover { border-color: color-mix(in srgb, var(--accent-1) 50%, transparent) !important; }
+[data-mode="light"] .support-link { border-color: #d4c9b8 !important; }
+[data-mode="light"] .support-link:hover { border-color: color-mix(in srgb, var(--accent-1) 60%, transparent) !important; }
+.support-link:hover .support-link-title { color: var(--accent-1) !important; }

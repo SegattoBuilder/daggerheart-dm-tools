@@ -12,7 +12,7 @@ Game data is sourced from the community-maintained [daggerheart-data](https://gi
 
 This project is free, open-source, and non-commercial — built purely as a helper tool for DMs at the table.
 
-> ~95% of this project was built with the assistance of AI (Amazon Q Developer). The prompts, design decisions, and game knowledge are human — the code is mostly not.
+☕ If you enjoy this tool, consider [buying me a coffee](https://buymeacoffee.com/segatto)!
 
 ## Features
 
