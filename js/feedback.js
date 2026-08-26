@@ -21,7 +21,8 @@ function submitBugReport() {
     input.value = '';
     document.querySelectorAll('input[name="reportType"]').forEach(r => r.checked = false);
     document.getElementById('feedbackForm').classList.add('hidden');
-    document.getElementById('feedbackThanks').classList.remove('hidden');
-    setTimeout(() => document.getElementById('feedbackThanks').classList.add('hidden'), 8000);
+    const toast = document.getElementById('feedbackToast');
+    toast.classList.remove('hidden');
+    setTimeout(() => toast.classList.add('hidden'), 6000);
   }).catch(() => alert('Failed to send report. Try again later.'));
 }

@@ -215,12 +215,7 @@
             <div id="feedbackForm" class="hidden space-y-3">
                 <textarea id="bugReportText" rows="3" placeholder="Describe your bug or idea..." class="w-full bg-[#1a1714] border border-[#4a3f30] rounded-lg px-4 py-3 text-sm outline-none focus:border-[#d4a017] placeholder-zinc-600 resize-y"></textarea>
                 <button onclick="submitBugReport()" class="btn-action text-[10px] px-4 py-2 rounded-full font-bold uppercase text-white font-[Cinzel]">📨 Submit</button>
-                <div id="feedbackThanks" class="hidden p-3 rounded-lg bg-[#1a1714] border border-[#4a3f30] text-xs text-zinc-300">
-                    ✅ Thanks for your feedback! If you're enjoying this tool, consider
-                    <a href="https://buymeacoffee.com/segatto" target="_blank" rel="noopener" class="text-[#d4a017] font-bold hover:underline">buying me a coffee ☕</a>
-                </div>
             </div>
-            <p class="text-[10px] text-zinc-600">JS errors are also captured automatically.</p>
         </div>
     </div>
     <div class="p-4 rounded-xl border-l-4 border-[#d4a017] bg-[#1e1b16]" data-theme-border="1">
@@ -476,6 +471,16 @@ Bite - Action: Mark a Stress to attack..." class="w-full bg-[#1a1714] border bor
             <button id="customSubmitBtn" onclick="addCustom()" class="flex-1 btn-action text-xs py-3 rounded-xl font-bold uppercase text-white">Add</button>
             <button onclick="closeCustomModal()" class="flex-1 bg-[#2a2418] border border-[#3d362a] text-xs py-3 rounded-xl font-bold uppercase text-[#a89880]">Cancel</button>
         </div>
+    </div>
+</div>
+
+<!-- Feedback Toast -->
+<div id="feedbackToast" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[999] hidden pointer-events-none">
+    <div class="pointer-events-auto bg-[#2a2418]/95 backdrop-blur border border-[#d4a017] rounded-xl px-6 py-5 shadow-[0_0_30px_rgba(212,160,23,0.3)] text-sm text-[#f5efe6] max-w-sm text-center">
+        <div class="text-lg mb-2">✅</div>
+        <div class="font-bold font-[Cinzel]">Thanks for your feedback!</div>
+        <div class="text-xs text-zinc-400 mt-2">If you're enjoying this tool, consider
+        <a href="https://buymeacoffee.com/segatto" target="_blank" rel="noopener" class="text-[#d4a017] font-bold hover:underline">buying me a coffee ☕</a></div>
     </div>
 </div>
 
