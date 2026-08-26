@@ -150,6 +150,51 @@
         </div>
     </div>
     <div class="p-4 rounded-xl border-l-4 border-[#d4a017] bg-[#1e1b16]" data-theme-border="1">
+        <h2 class="text-xs font-bold uppercase font-[Cinzel] tracking-widest mb-0 cursor-pointer flex items-center justify-between" style="color:#d4a017" onclick="this.parentElement.querySelector('.tips-content').classList.toggle('hidden'); this.querySelector('.tips-arrow').classList.toggle('rotate-90')">
+            Tips & Tricks
+            <span class="tips-arrow transition-transform text-[10px]">▶</span>
+        </h2>
+        <div class="tips-content hidden space-y-4 text-xs text-zinc-400 mt-4">
+            <div>
+                <div class="font-bold text-[#f5efe6] mb-1">Three Adversary Types</div>
+                <ul class="list-disc ml-4 space-y-1">
+                    <li><span class="text-zinc-300">Character</span> — Manual entry for PCs or allies. Has Evasion, HP, Stress, Hope, and Armor.</li>
+                    <li><span class="text-zinc-300">Enemy (SRD)</span> — Search the database and auto-populate all stats. You can still edit it after adding.</li>
+                    <li><span class="text-zinc-300">Custom</span> — Build your own adversary from scratch with full control over all fields.</li>
+                </ul>
+            </div>
+            <div>
+                <div class="font-bold text-[#f5efe6] mb-1">Features Formatting</div>
+                <p>Write one feature per line. Use a <span class="text-amber-200 font-bold">colon (:)</span> to split the name from the description:</p>
+                <div class="bg-[#1a1714] border border-[#3d362a] rounded-lg p-2 mt-1 font-mono text-[10px] text-zinc-300">
+                    Relentless (3) - Passive: Can be spotlighted 3 times<br>
+                    Bite - Action: Mark a Stress to attack
+                </div>
+                <p class="mt-1">Everything before the first colon renders as <span class="text-amber-200 font-bold">bold gold</span>. Everything after is regular text. No colon = bold-only line.</p>
+            </div>
+            <div>
+                <div class="font-bold text-[#f5efe6] mb-1">Editing Cards</div>
+                <p>Every card has a ✏️ button. Enemy cards open in the Custom editor so you can tweak Type, Range, Motives, and Features after importing from the SRD.</p>
+            </div>
+            <div>
+                <div class="font-bold text-[#f5efe6] mb-1">Clickable Dots</div>
+                <p>Click any dot to toggle it. Dots start full and reduce as damage is taken. Use the +/− buttons next to each stat to adjust the max on the fly.</p>
+            </div>
+            <div>
+                <div class="font-bold text-[#f5efe6] mb-1">Card Notes</div>
+                <p>Hit the 📝 button to flip a card and write private DM notes (conditions, reminders, etc). Notes persist across sessions.</p>
+            </div>
+            <div>
+                <div class="font-bold text-[#f5efe6] mb-1">Save & Load</div>
+                <p>💾 Save exports your entire session (creatures, counters, fear) as a JSON file. 📂 Load imports it back. Your campaign also auto-saves to the browser — no data is sent anywhere.</p>
+            </div>
+            <div>
+                <div class="font-bold text-[#f5efe6] mb-1">Drag & Drop</div>
+                <p>Grab any creature card and drag it to reorder. Useful for tracking initiative or grouping enemies.</p>
+            </div>
+        </div>
+    </div>
+    <div class="p-4 rounded-xl border-l-4 border-[#d4a017] bg-[#1e1b16]" data-theme-border="1">
         <h2 class="text-xs font-bold uppercase font-[Cinzel] tracking-widest mb-4" data-theme-level="1" style="color:#d4a017">Resources & Community</h2>
         <div class="space-y-3">
             <a href="https://segattobuilder.github.io/daggerheart-character-sheet/" target="_blank" rel="noopener"
@@ -278,14 +323,10 @@
                 <input id="modalAtk" type="text" placeholder="optional — e.g. Claws 1d8+3 phy, Melee" class="w-full bg-[#1a1714] border border-[#4a3f30] rounded-lg px-4 py-3 text-sm outline-none focus:border-[#d4a017]">
             </div>
             <div>
-                <label class="text-[10px] text-zinc-500 uppercase tracking-wide font-bold block mb-1">Ability</label>
-                <textarea id="modalAbility" rows="2" placeholder="optional — free-form ability description..." class="w-full bg-[#1a1714] border border-[#4a3f30] rounded-lg px-4 py-3 text-sm outline-none focus:border-[#d4a017] resize-none"></textarea>
-            </div>
-            <div>
                 <label class="text-[10px] text-zinc-500 uppercase tracking-wide font-bold block mb-1">Features</label>
-                <textarea id="modalFeatures" rows="3" placeholder="optional — one per line, e.g.:
+                <textarea id="modalFeatures" rows="5" placeholder="optional — one per line, e.g.:
 Relentless (3) - Passive: Can be spotlighted 3 times...
-Bite - Action: Mark a Stress to attack..." class="w-full bg-[#1a1714] border border-[#4a3f30] rounded-lg px-4 py-3 text-sm outline-none focus:border-[#d4a017] resize-none"></textarea>
+Bite - Action: Mark a Stress to attack..." class="w-full bg-[#1a1714] border border-[#4a3f30] rounded-lg px-4 py-3 text-sm outline-none focus:border-[#d4a017] resize-y"></textarea>
             </div>
             <div class="text-[10px] text-zinc-600">Quantity &gt; 1 will create "Name 1", "Name 2", etc.</div>
         </div>
@@ -326,58 +367,77 @@ Bite - Action: Mark a Stress to attack..." class="w-full bg-[#1a1714] border bor
 
 <!-- Add Custom Modal -->
 <div id="customModal" class="fixed inset-0 modal-overlay hidden z-50 p-4 overflow-y-auto flex items-center justify-center" onclick="if(event.target===this)closeCustomModal()">
-    <div class="modal-panel p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+    <div class="modal-panel p-6 w-full max-w-md lg:max-w-3xl max-h-[90vh] overflow-y-auto">
         <div class="flex justify-between items-center border-b border-[#363026] pb-3 mb-5">
             <h2 class="font-black text-base uppercase font-[Cinzel] tracking-wide" style="color: var(--accent-1)">Add Custom</h2>
             <button onclick="closeCustomModal()" class="text-[#6b5d4d] hover:text-white text-2xl leading-none">✕</button>
         </div>
         <div class="space-y-4">
             <div>
-                <label class="text-[10px] text-zinc-500 uppercase tracking-wide font-bold block mb-1">Name</label>
-                <input id="customName" type="text" placeholder="Custom adversary name..." class="w-full bg-[#1a1714] border border-[#4a3f30] rounded-lg px-4 py-3 text-sm outline-none focus:border-[#d4a017]">
+                <label class="text-[10px] text-zinc-500 uppercase tracking-wide font-bold block mb-1 text-center">Name</label>
+                <input id="customName" type="text" placeholder="Custom adversary name..." class="w-full bg-[#1a1714] border border-[#4a3f30] rounded-lg px-4 py-3 text-sm outline-none focus:border-[#d4a017] text-center">
             </div>
             <div class="grid grid-cols-3 gap-3">
                 <div>
-                    <label class="text-[10px] text-zinc-500 uppercase tracking-wide font-bold block mb-1">Difficulty</label>
-                    <input id="customDifficulty" type="number" value="10" min="0" max="30" class="w-full bg-[#1a1714] border border-[#4a3f30] rounded-lg px-4 py-3 text-sm outline-none focus:border-[#d4a017]">
+                    <label class="text-[10px] text-zinc-500 uppercase tracking-wide font-bold block mb-1 text-center">Difficulty</label>
+                    <input id="customDifficulty" type="number" value="10" min="0" max="30" class="w-full bg-[#1a1714] border border-[#4a3f30] rounded-lg px-4 py-3 text-sm outline-none focus:border-[#d4a017] text-center">
                 </div>
                 <div>
-                    <label class="text-[10px] text-zinc-500 uppercase tracking-wide font-bold block mb-1">HP</label>
-                    <input id="customHp" type="number" value="1" min="0" max="30" class="w-full bg-[#1a1714] border border-[#4a3f30] rounded-lg px-4 py-3 text-sm outline-none focus:border-[#d4a017]">
+                    <label class="text-[10px] text-zinc-500 uppercase tracking-wide font-bold block mb-1 text-center">HP</label>
+                    <input id="customHp" type="number" value="1" min="0" max="30" class="w-full bg-[#1a1714] border border-[#4a3f30] rounded-lg px-4 py-3 text-sm outline-none focus:border-[#d4a017] text-center">
                 </div>
                 <div>
-                    <label class="text-[10px] text-zinc-500 uppercase tracking-wide font-bold block mb-1">Stress</label>
-                    <input id="customStress" type="number" value="0" min="0" max="30" class="w-full bg-[#1a1714] border border-[#4a3f30] rounded-lg px-4 py-3 text-sm outline-none focus:border-[#d4a017]">
+                    <label class="text-[10px] text-zinc-500 uppercase tracking-wide font-bold block mb-1 text-center">Stress</label>
+                    <input id="customStress" type="number" value="0" min="0" max="30" class="w-full bg-[#1a1714] border border-[#4a3f30] rounded-lg px-4 py-3 text-sm outline-none focus:border-[#d4a017] text-center">
                 </div>
             </div>
             <div class="grid grid-cols-2 gap-3">
                 <div>
-                    <label class="text-[10px] text-zinc-500 uppercase tracking-wide font-bold block mb-1">Major Threshold</label>
-                    <input id="customMajor" type="number" value="" min="0" max="99" placeholder="e.g. 8" class="w-full bg-[#1a1714] border border-[#4a3f30] rounded-lg px-4 py-3 text-sm outline-none focus:border-[#d4a017]">
+                    <label class="text-[10px] text-zinc-500 uppercase tracking-wide font-bold block mb-1 text-center">Major Threshold</label>
+                    <input id="customMajor" type="number" value="" min="0" max="99" placeholder="e.g. 8" class="w-full bg-[#1a1714] border border-[#4a3f30] rounded-lg px-4 py-3 text-sm outline-none focus:border-[#d4a017] text-center">
                 </div>
                 <div>
-                    <label class="text-[10px] text-zinc-500 uppercase tracking-wide font-bold block mb-1">Severe Threshold</label>
-                    <input id="customSevere" type="number" value="" min="0" max="99" placeholder="e.g. 15" class="w-full bg-[#1a1714] border border-[#4a3f30] rounded-lg px-4 py-3 text-sm outline-none focus:border-[#d4a017]">
+                    <label class="text-[10px] text-zinc-500 uppercase tracking-wide font-bold block mb-1 text-center">Severe Threshold</label>
+                    <input id="customSevere" type="number" value="" min="0" max="99" placeholder="e.g. 15" class="w-full bg-[#1a1714] border border-[#4a3f30] rounded-lg px-4 py-3 text-sm outline-none focus:border-[#d4a017] text-center">
                 </div>
             </div>
-            <div>
-                <label class="text-[10px] text-zinc-500 uppercase tracking-wide font-bold block mb-1">Attack (name, damage, range)</label>
-                <input id="customAtk" type="text" placeholder="e.g. Claws 1d8+3 phy, Melee" class="w-full bg-[#1a1714] border border-[#4a3f30] rounded-lg px-4 py-3 text-sm outline-none focus:border-[#d4a017]">
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="text-[10px] text-zinc-500 uppercase tracking-wide font-bold block mb-1 text-center">Type</label>
+                    <input id="customType" type="text" placeholder="e.g. Solo, Standard, Minion" class="w-full bg-[#1a1714] border border-[#4a3f30] rounded-lg px-4 py-3 text-sm outline-none focus:border-[#d4a017] text-center">
+                </div>
+                <div>
+                    <label class="text-[10px] text-zinc-500 uppercase tracking-wide font-bold block mb-1 text-center">Range (default)</label>
+                    <input id="customRange" type="text" placeholder="e.g. Melee, Close, Far" class="w-full bg-[#1a1714] border border-[#4a3f30] rounded-lg px-4 py-3 text-sm outline-none focus:border-[#d4a017] text-center">
+                </div>
+            </div>
+            <div id="customAttacksContainer">
+                <label class="text-[10px] text-zinc-500 uppercase tracking-wide font-bold block mb-1 text-center">Attacks</label>
+                <div id="customAttacksList" class="space-y-2"></div>
+                <button type="button" onclick="addCustomAttackRow()" class="mt-2 text-[10px] px-2 py-1 rounded-lg bg-[#2a2418] border border-[#4a3f30] text-[#d4a017] font-bold uppercase hover:border-[#d4a017]">+ Attack</button>
             </div>
             <div>
-                <label class="text-[10px] text-zinc-500 uppercase tracking-wide font-bold block mb-1">Ability</label>
-                <textarea id="customAbility" rows="2" placeholder="Free-form ability description..." class="w-full bg-[#1a1714] border border-[#4a3f30] rounded-lg px-4 py-3 text-sm outline-none focus:border-[#d4a017] resize-none"></textarea>
+                <label class="text-[10px] text-zinc-500 uppercase tracking-wide font-bold block mb-1 text-center">Motives & Tactics</label>
+                <input id="customMotives" type="text" placeholder="e.g. Defend lair, fly, freeze, maul" class="w-full bg-[#1a1714] border border-[#4a3f30] rounded-lg px-4 py-3 text-sm outline-none focus:border-[#d4a017] text-center">
             </div>
             <div>
-                <label class="text-[10px] text-zinc-500 uppercase tracking-wide font-bold block mb-1">Features</label>
-                <textarea id="customFeatures" rows="3" placeholder="One feature per line, e.g.:
+                <label class="text-[10px] text-zinc-500 uppercase tracking-wide font-bold block mb-1 text-center">Experience</label>
+                <input id="customExperience" type="text" placeholder="e.g. Magical Knowledge +2, Strategize +2" class="w-full bg-[#1a1714] border border-[#4a3f30] rounded-lg px-4 py-3 text-sm outline-none focus:border-[#d4a017] text-center">
+            </div>
+            <div>
+                <label class="text-[10px] text-zinc-500 uppercase tracking-wide font-bold block mb-1 text-center">Description</label>
+                <input id="customDescription" type="text" placeholder="e.g. A battle-hardened mage trained in destructive magic." class="w-full bg-[#1a1714] border border-[#4a3f30] rounded-lg px-4 py-3 text-sm outline-none focus:border-[#d4a017] text-center">
+            </div>
+            <div>
+                <label class="text-[10px] text-zinc-500 uppercase tracking-wide font-bold block mb-1 text-center">Features</label>
+                <textarea id="customFeatures" rows="5" placeholder="One feature per line, e.g.:
 Relentless (3) - Passive: Can be spotlighted 3 times...
-Bite - Action: Mark a Stress to attack..." class="w-full bg-[#1a1714] border border-[#4a3f30] rounded-lg px-4 py-3 text-sm outline-none focus:border-[#d4a017] resize-none"></textarea>
+Bite - Action: Mark a Stress to attack..." class="w-full bg-[#1a1714] border border-[#4a3f30] rounded-lg px-4 py-3 text-sm outline-none focus:border-[#d4a017] resize-y"></textarea>
             </div>
             <div id="customQtyRow">
-                <label class="text-[10px] text-zinc-500 uppercase tracking-wide font-bold block mb-1">Quantity</label>
-                <input id="customQty" type="number" value="1" min="1" max="20" class="w-full bg-[#1a1714] border border-[#4a3f30] rounded-lg px-4 py-3 text-sm outline-none focus:border-[#d4a017]">
-                <div class="text-[10px] text-zinc-600 mt-1">Quantity &gt; 1 will create "Name 1", "Name 2", etc.</div>
+                <label class="text-[10px] text-zinc-500 uppercase tracking-wide font-bold block mb-1 text-center">Quantity</label>
+                <input id="customQty" type="number" value="1" min="1" max="20" class="w-full bg-[#1a1714] border border-[#4a3f30] rounded-lg px-4 py-3 text-sm outline-none focus:border-[#d4a017] text-center">
+                <div class="text-[10px] text-zinc-600 mt-1 text-center">Quantity &gt; 1 will create "Name 1", "Name 2", etc.</div>
             </div>
         </div>
         <div class="flex gap-3 mt-6">

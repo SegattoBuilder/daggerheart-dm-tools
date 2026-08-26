@@ -134,7 +134,6 @@ function openCharacterModal() {
     document.getElementById('modalMajor').value = '';
     document.getElementById('modalSevere').value = '';
     document.getElementById('modalAtk').value = '';
-    document.getElementById('modalAbility').value = '';
     document.getElementById('modalFeatures').value = '';
     document.getElementById('modalName').focus();
 }
@@ -167,7 +166,6 @@ function editCharacterCard(creatureId) {
     document.getElementById('modalMajor').value = major === '?' ? '' : (major || '');
     document.getElementById('modalSevere').value = severe === '?' ? '' : (severe || '');
     document.getElementById('modalAtk').value = ed ? (ed.attack || '') : '';
-    document.getElementById('modalAbility').value = ed ? (ed.ability || '') : '';
     document.getElementById('modalFeatures').value = featuresText;
     document.getElementById('modalName').focus();
 }
@@ -183,12 +181,11 @@ function addCreatures() {
     const major = document.getElementById('modalMajor').value.trim();
     const severe = document.getElementById('modalSevere').value.trim();
     const atk = document.getElementById('modalAtk').value.trim();
-    const ability = document.getElementById('modalAbility').value.trim();
     const featuresRaw = document.getElementById('modalFeatures').value.trim();
 
     if (!name) { alert('Please enter a name.'); return; }
 
-    const hasExtra = major || severe || atk || ability || featuresRaw;
+    const hasExtra = major || severe || atk || featuresRaw;
     let enemyData = null;
 
     if (hasExtra) {
@@ -212,7 +209,7 @@ function addCreatures() {
             description: '',
             experience: '',
             motives_and_tactics: '',
-            ability,
+            ability: '',
             feature: features,
             type: 'Character',
             tier: ''
@@ -381,6 +378,53 @@ document.getElementById('enemySearch').addEventListener('input', (e) => {
     }).join('');
 });
 
+// ========== CUSTOM ATTACK ROWS ==========
+function addCustomAttackRow(name = '', atk = '', damage = '', range = '') {
+    const list = document.getElementById('customAttacksList');
+    const row = document.createElement('div');
+    row.className = 'border border-[#3d362a] rounded-lg p-2 relative';
+    row.innerHTML = `
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-2">
+            <input type="text" placeholder="Name" value="${escHtmlAttr(name)}" class="bg-[#1a1714] border border-[#4a3f30] rounded-lg px-3 py-2 text-xs outline-none focus:border-[#d4a017] text-center">
+            <input type="text" placeholder="ATK" value="${escHtmlAttr(atk)}" class="bg-[#1a1714] border border-[#4a3f30] rounded-lg px-2 py-2 text-xs outline-none focus:border-[#d4a017] text-center">
+            <input type="text" placeholder="Damage" value="${escHtmlAttr(damage)}" class="bg-[#1a1714] border border-[#4a3f30] rounded-lg px-3 py-2 text-xs outline-none focus:border-[#d4a017] text-center">
+            <input type="text" placeholder="Range" value="${escHtmlAttr(range)}" class="bg-[#1a1714] border border-[#4a3f30] rounded-lg px-3 py-2 text-xs outline-none focus:border-[#d4a017] text-center">
+        </div>
+        <button type="button" onclick="if(confirm('Remove this attack?'))this.parentElement.remove()" class="absolute top-1 right-1 text-zinc-700 hover:text-red-500 text-xs leading-none">✕</button>
+    `;
+    list.appendChild(row);
+}
+
+function getCustomAttacks() {
+    const rows = document.getElementById('customAttacksList').querySelectorAll(':scope > div');
+    const attacks = [];
+    rows.forEach(row => {
+        const inputs = row.querySelectorAll('input');
+        const name = inputs[0].value.trim();
+        const atk = inputs[1].value.trim();
+        const damage = inputs[2].value.trim();
+        const range = inputs[3].value.trim();
+        if (name || damage) attacks.push({ name, atk, damage, range });
+    });
+    return attacks;
+}
+
+function setCustomAttacks(attacks) {
+    document.getElementById('customAttacksList').innerHTML = '';
+    if (!attacks || attacks.length === 0) {
+        addCustomAttackRow();
+        return;
+    }
+    attacks.forEach(a => addCustomAttackRow(a.name || '', a.atk || '', a.damage || '', a.range || ''));
+}
+
+// Convert legacy single attack fields to attacks array
+function enemyDataToAttacks(ed) {
+    if (ed.attacks && ed.attacks.length) return ed.attacks;
+    if (ed.attack || ed.damage) return [{ name: ed.attack || '', atk: ed.atk || '', damage: ed.damage || '', range: ed.range || '' }];
+    return [];
+}
+
 // ========== ADD CUSTOM MODAL ==========
 function openCustomModal() {
     document.getElementById('customModal').classList.remove('hidden');
@@ -390,8 +434,12 @@ function openCustomModal() {
     document.getElementById('customStress').value = '0';
     document.getElementById('customMajor').value = '';
     document.getElementById('customSevere').value = '';
-    document.getElementById('customAtk').value = '';
-    document.getElementById('customAbility').value = '';
+    document.getElementById('customType').value = '';
+    document.getElementById('customRange').value = '';
+    setCustomAttacks([]);
+    document.getElementById('customMotives').value = '';
+    document.getElementById('customExperience').value = '';
+    document.getElementById('customDescription').value = '';
     document.getElementById('customFeatures').value = '';
     document.getElementById('customQty').value = '1';
     document.getElementById('customName').focus();
@@ -424,8 +472,12 @@ function editCustomCard(creatureId) {
     document.getElementById('customStress').value = ed.stress || creature.stressMax || '0';
     document.getElementById('customMajor').value = major === '?' ? '' : (major || '');
     document.getElementById('customSevere').value = severe === '?' ? '' : (severe || '');
-    document.getElementById('customAtk').value = ed.attack || '';
-    document.getElementById('customAbility').value = ed.ability || '';
+    document.getElementById('customType').value = ed.type || '';
+    document.getElementById('customRange').value = ed.range || '';
+    setCustomAttacks(enemyDataToAttacks(ed));
+    document.getElementById('customMotives').value = ed.motives_and_tactics || '';
+    document.getElementById('customExperience').value = ed.experience || '';
+    document.getElementById('customDescription').value = ed.description || '';
     document.getElementById('customFeatures').value = featuresText;
     document.getElementById('customName').focus();
 }
@@ -449,8 +501,12 @@ function editEnemyCard(creatureId) {
     document.getElementById('customStress').value = ed.stress || creature.stressMax || '0';
     document.getElementById('customMajor').value = major === '?' ? '' : (major || '');
     document.getElementById('customSevere').value = severe === '?' ? '' : (severe || '');
-    document.getElementById('customAtk').value = ed.attack || '';
-    document.getElementById('customAbility').value = ed.ability || '';
+    document.getElementById('customType').value = ed.type || '';
+    document.getElementById('customRange').value = ed.range || '';
+    setCustomAttacks(enemyDataToAttacks(ed));
+    document.getElementById('customMotives').value = ed.motives_and_tactics || '';
+    document.getElementById('customExperience').value = ed.experience || '';
+    document.getElementById('customDescription').value = ed.description || '';
     document.getElementById('customFeatures').value = featuresText;
     document.getElementById('customName').focus();
 }
@@ -464,8 +520,12 @@ function addCustom() {
     const stress = parseInt(document.getElementById('customStress').value) || 0;
     const major = document.getElementById('customMajor').value.trim();
     const severe = document.getElementById('customSevere').value.trim();
-    const atk = document.getElementById('customAtk').value.trim();
-    const ability = document.getElementById('customAbility').value.trim();
+    const customType = document.getElementById('customType').value.trim();
+    const customRange = document.getElementById('customRange').value.trim();
+    const attacks = getCustomAttacks();
+    const motives = document.getElementById('customMotives').value.trim();
+    const experience = document.getElementById('customExperience').value.trim();
+    const description = document.getElementById('customDescription').value.trim();
     const featuresRaw = document.getElementById('customFeatures').value.trim();
     const qty = Math.max(1, Math.min(20, parseInt(document.getElementById('customQty').value) || 1));
 
@@ -482,16 +542,17 @@ function addCustom() {
         hp: String(hp),
         stress: String(stress),
         thresholds,
-        atk: atk.match(/[+-]\d+/)?.[0] || '',
-        attack: atk,
-        damage: '',
-        range: '',
-        description: '',
-        experience: '',
-        motives_and_tactics: '',
-        ability: ability,
+        atk: attacks.length ? (attacks[0].name.match(/[+-]\d+/)?.[0] || '') : '',
+        attack: attacks.length ? attacks[0].name : '',
+        damage: attacks.length ? attacks[0].damage : '',
+        range: attacks.length ? attacks[0].range : customRange,
+        attacks: attacks,
+        description: description,
+        experience: experience,
+        motives_and_tactics: motives,
+        ability: '',
         feature: features,
-        type: document.getElementById('customModal').getAttribute('data-edit-type') || 'Custom',
+        type: customType || document.getElementById('customModal').getAttribute('data-edit-type') || 'Custom',
         tier: ''
     };
 
@@ -658,7 +719,7 @@ function buildCardInner(creature, dead) {
                     ${major ? `<span class="text-[10px] bg-[#2a2418] border border-[#3d362a] rounded px-1.5 py-0.5 text-amber-300">Major ${escHtml(major)}+</span>` : ''}
                     ${severe ? `<span class="text-[10px] bg-[#2a1a1a] border border-[#3d2a2a] rounded px-1.5 py-0.5 text-red-300">Severe ${escHtml(severe)}+</span>` : ''}
                 </div>
-                <div class="text-xs text-[#e8e0d4]">⚔️ <span class="font-bold">${escHtml(ed.attack || '')}</span> ${escHtml(ed.damage || '')} • ${escHtml(ed.range || '')} • ATK ${escHtml(ed.atk || '')}</div>
+                <div class="text-xs text-[#e8e0d4]">${(ed.attacks && ed.attacks.length ? ed.attacks : (ed.attack ? [{name: ed.attack, damage: ed.damage, range: ed.range, atk: ed.atk}] : [])).map(a => { const atkVal = a.atk || ed.atk || ''; return `⚔️ <span class="font-bold">${escHtml(a.name || '')}</span>${atkVal ? ' • ' + escHtml(atkVal) : ''} • ${escHtml(a.damage || '')} • ${escHtml(a.range || '')}`; }).join('<br>')}</div>
                 ${ed.experience ? `<div class="text-xs text-[#e8e0d4]">📋 ${escHtml(ed.experience)}</div>` : ''}
                 ${ed.motives_and_tactics ? `<div class="text-xs text-[#e8e0d4]">🎯 ${escHtml(ed.motives_and_tactics)}</div>` : ''}
                 ${ed.ability ? `<div class="text-xs text-[#e8e0d4]">✨ ${escHtml(ed.ability)}</div>` : ''}
