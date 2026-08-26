@@ -892,7 +892,7 @@ function renderGrid() {
 // ========== CLEAR FUNCTIONS ==========
 function clearCreatures(event) {
     if (event) { event.stopPropagation(); event.preventDefault(); }
-    if (!confirm('Remove all creatures?')) return;
+    if (!confirm('Remove all adversaries?')) return;
     creatures = [];
     autoCache();
     renderGrid();
