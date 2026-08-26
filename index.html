@@ -197,6 +197,14 @@
         </div>
     </div>
     <div class="p-4 rounded-xl border-l-4 border-[#d4a017] bg-[#1e1b16]" data-theme-border="1">
+        <h2 class="text-xs font-bold uppercase font-[Cinzel] tracking-widest mb-4" style="color:#d4a017">Report a Bug</h2>
+        <div class="space-y-3">
+            <textarea id="bugReportText" rows="3" placeholder="Describe what went wrong..." class="w-full bg-[#1a1714] border border-[#4a3f30] rounded-lg px-4 py-3 text-sm outline-none focus:border-[#d4a017] placeholder-zinc-600 resize-y"></textarea>
+            <button onclick="submitBugReport()" class="btn-action text-[10px] px-4 py-2 rounded-full font-bold uppercase text-white font-[Cinzel]">🐛 Submit Report</button>
+            <p class="text-[10px] text-zinc-600">JS errors are also captured automatically.</p>
+        </div>
+    </div>
+    <div class="p-4 rounded-xl border-l-4 border-[#d4a017] bg-[#1e1b16]" data-theme-border="1">
         <h2 class="text-xs font-bold uppercase font-[Cinzel] tracking-widest mb-4" data-theme-level="1" style="color:#d4a017">Resources & Community</h2>
         <div class="space-y-3">
             <a href="https://segattobuilder.github.io/daggerheart-character-sheet/" target="_blank" rel="noopener"
@@ -449,6 +457,7 @@ Bite - Action: Mark a Stress to attack..." class="w-full bg-[#1a1714] border bor
     </div>
 </div>
 
+<script src="js/errors.js"></script>
 <script src="js/app.js"></script>
 <script src="js/tracker.js"></script>
 <script src="js/compendium.js"></script>
