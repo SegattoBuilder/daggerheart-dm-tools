@@ -7,17 +7,21 @@ window.onerror = function(msg, src, line, col) {
   }).catch(() => {});
 };
 
-// Manual bug report
+// Manual user report
 function submitBugReport() {
   const input = document.getElementById('bugReportText');
+  const type = document.querySelector('input[name="reportType"]:checked')?.value;
   const msg = input.value.trim();
-  if (!msg) return;
+  if (!msg || !type) return;
   fetch('/api/report', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ type: 'feedback', message: msg, page: location.pathname })
+    body: JSON.stringify({ type, message: msg, page: location.pathname })
   }).then(() => {
     input.value = '';
-    alert('Thanks! Your report has been submitted.');
+    document.querySelectorAll('input[name="reportType"]').forEach(r => r.checked = false);
+    document.getElementById('feedbackForm').classList.add('hidden');
+    document.getElementById('feedbackThanks').classList.remove('hidden');
+    setTimeout(() => document.getElementById('feedbackThanks').classList.add('hidden'), 8000);
   }).catch(() => alert('Failed to send report. Try again later.'));
 }

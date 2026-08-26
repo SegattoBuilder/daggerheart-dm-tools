@@ -197,16 +197,38 @@
         </div>
     </div>
     <div class="p-4 rounded-xl border-l-4 border-[#d4a017] bg-[#1e1b16]" data-theme-border="1">
-        <h2 class="text-xs font-bold uppercase font-[Cinzel] tracking-widest mb-4" style="color:#d4a017">Report a Bug</h2>
-        <div class="space-y-3">
-            <textarea id="bugReportText" rows="3" placeholder="Describe what went wrong..." class="w-full bg-[#1a1714] border border-[#4a3f30] rounded-lg px-4 py-3 text-sm outline-none focus:border-[#d4a017] placeholder-zinc-600 resize-y"></textarea>
-            <button onclick="submitBugReport()" class="btn-action text-[10px] px-4 py-2 rounded-full font-bold uppercase text-white font-[Cinzel]">🐛 Submit Report</button>
+        <h2 class="text-xs font-bold uppercase font-[Cinzel] tracking-widest mb-0 cursor-pointer flex items-center justify-between" style="color:#d4a017" onclick="this.parentElement.querySelector('.feedback-content').classList.toggle('hidden'); this.querySelector('.feedback-arrow').classList.toggle('rotate-90')">
+            Feedback
+            <span class="feedback-arrow transition-transform text-[10px]">▶</span>
+        </h2>
+        <div class="feedback-content hidden space-y-3 mt-4">
+            <div class="flex gap-4">
+                <label class="flex items-center gap-2 cursor-pointer text-sm text-zinc-300">
+                    <input type="radio" name="reportType" value="bug" class="accent-[#d4a017]" onchange="document.getElementById('feedbackForm').classList.remove('hidden')">
+                    🐛 Bug Report
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer text-sm text-zinc-300">
+                    <input type="radio" name="reportType" value="feature" class="accent-[#d4a017]" onchange="document.getElementById('feedbackForm').classList.remove('hidden')">
+                    ✨ Feature Request
+                </label>
+            </div>
+            <div id="feedbackForm" class="hidden space-y-3">
+                <textarea id="bugReportText" rows="3" placeholder="Describe your bug or idea..." class="w-full bg-[#1a1714] border border-[#4a3f30] rounded-lg px-4 py-3 text-sm outline-none focus:border-[#d4a017] placeholder-zinc-600 resize-y"></textarea>
+                <button onclick="submitBugReport()" class="btn-action text-[10px] px-4 py-2 rounded-full font-bold uppercase text-white font-[Cinzel]">📨 Submit</button>
+                <div id="feedbackThanks" class="hidden p-3 rounded-lg bg-[#1a1714] border border-[#4a3f30] text-xs text-zinc-300">
+                    ✅ Thanks for your feedback! If you're enjoying this tool, consider
+                    <a href="https://buymeacoffee.com/segatto" target="_blank" rel="noopener" class="text-[#d4a017] font-bold hover:underline">buying me a coffee ☕</a>
+                </div>
+            </div>
             <p class="text-[10px] text-zinc-600">JS errors are also captured automatically.</p>
         </div>
     </div>
     <div class="p-4 rounded-xl border-l-4 border-[#d4a017] bg-[#1e1b16]" data-theme-border="1">
-        <h2 class="text-xs font-bold uppercase font-[Cinzel] tracking-widest mb-4" data-theme-level="1" style="color:#d4a017">Resources & Community</h2>
-        <div class="space-y-3">
+        <h2 class="text-xs font-bold uppercase font-[Cinzel] tracking-widest mb-0 cursor-pointer flex items-center justify-between" data-theme-level="1" style="color:#d4a017" onclick="this.parentElement.querySelector('.resources-content').classList.toggle('hidden'); this.querySelector('.resources-arrow').classList.toggle('rotate-90')">
+            Resources & Community
+            <span class="resources-arrow transition-transform text-[10px]">▶</span>
+        </h2>
+        <div class="resources-content hidden space-y-3 mt-4">
             <a href="https://segattobuilder.github.io/daggerheart-character-sheet/" target="_blank" rel="noopener"
                class="support-link flex items-start gap-3 p-4 bg-black/40 border border-zinc-800 rounded-xl transition-colors">
                 <span class="text-2xl">⚔️</span>
@@ -457,7 +479,7 @@ Bite - Action: Mark a Stress to attack..." class="w-full bg-[#1a1714] border bor
     </div>
 </div>
 
-<script src="js/errors.js"></script>
+<script src="js/feedback.js"></script>
 <script src="js/app.js"></script>
 <script src="js/tracker.js"></script>
 <script src="js/compendium.js"></script>
