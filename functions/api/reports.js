@@ -5,8 +5,8 @@ export async function onRequestGet(context) {
   if (secret !== env.ADMIN_KEY) {
     return new Response('Unauthorized', { status: 401 });
   }
-  const list = await env.BUG_REPORTS.list({ limit: 100 });
-  const reports = await Promise.all(list.keys.map(k => env.BUG_REPORTS.get(k.name, { type: 'json' })));
+  const list = await env.dm_tools_reports.list({ limit: 100 });
+  const reports = await Promise.all(list.keys.map(k => env.dm_tools_reports.get(k.name, { type: 'json' })));
   reports.sort((a, b) => b.timestamp.localeCompare(a.timestamp));
   return new Response(JSON.stringify(reports, null, 2), { headers: { 'Content-Type': 'application/json' } });
 }

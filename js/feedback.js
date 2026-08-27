@@ -12,7 +12,7 @@ if (location.hostname === 'segattobuilder.github.io') {
   const banner = document.createElement('div');
   banner.id = 'migrationBanner';
   banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:9999;background:rgba(26,23,20,0.97);border-bottom:2px solid #d4a017;padding:14px 20px;text-align:center;font-size:13px;color:#f5efe6;backdrop-filter:blur(8px)';
-  banner.innerHTML = '🚀 This page will shut down on September 30. Save your session and switch to the new link: <a href="https://daggerheart-dm-tools.pages.dev" style="color:#d4a017;font-weight:bold;text-decoration:underline">daggerheart-dm-tools.pages.dev</a> <button onclick="this.parentElement.remove()" style="margin-left:16px;color:#6b5d4d;font-size:18px;background:none;border:none;cursor:pointer">✕</button>';
+  banner.innerHTML = '🚀 This page will shut down on <strong style="color:#d4a017">September 30th</strong>. Save your session and switch to the new link: <a href="https://daggerheart-dm-tools.pages.dev" style="color:#d4a017;font-weight:bold;text-decoration:underline">daggerheart-dm-tools.pages.dev</a> <button onclick="this.parentElement.remove()" style="margin-left:16px;color:#6b5d4d;font-size:18px;background:none;border:none;cursor:pointer">✕</button>';
   document.body.prepend(banner);
   setTimeout(() => { if (document.getElementById('migrationBanner')) banner.remove(); }, 10000);
 }
