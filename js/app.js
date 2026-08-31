@@ -70,12 +70,13 @@ function isVaultActive() {
 
 // ========== TAB SWITCHING ==========
 function switchTab(tab) {
-    ['tracker','adversaries','compendium','vault','support'].forEach(t => {
+    ['tracker','vault','chronicle','adversaries','compendium','support'].forEach(t => {
         document.getElementById('panel' + t.charAt(0).toUpperCase() + t.slice(1)).classList.toggle('hidden', tab !== t);
         document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1)).classList.toggle('active', tab === t);
     });
     document.getElementById('trackerActions').classList.toggle('hidden', tab !== 'tracker');
     document.getElementById('vaultActions').classList.toggle('hidden', tab !== 'vault');
+    document.getElementById('chronicleActions').classList.toggle('hidden', tab !== 'chronicle');
 }
 
 // ========== INIT ==========
@@ -86,6 +87,7 @@ window.onload = () => {
         try { creatures = JSON.parse(raw) || []; } catch { creatures = []; }
     }
     try { vaultCreatures = JSON.parse(localStorage.getItem(VAULT_KEY)) || []; } catch { vaultCreatures = []; }
+    try { chronicleEntries = JSON.parse(localStorage.getItem(CHRONICLE_KEY)) || []; } catch { chronicleEntries = []; }
     fearFilled = parseInt(localStorage.getItem(FEAR_KEY)) || 0;
     renderFearDots();
     try { actionCounters = JSON.parse(localStorage.getItem(COUNTERS_KEY)) || []; } catch { actionCounters = []; }
@@ -95,6 +97,7 @@ window.onload = () => {
     if (savedCampaign) cnInput.style.width = Math.min(savedCampaign.length + 2, 56) + 'ch';
     renderGrid();
     renderVaultGrid();
+    renderChronicle();
 
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') { closeAddTypeModal(); closeAddModal(); closeEnemyModal(); closeCustomModal(); closeCardModal(); }

@@ -2,7 +2,7 @@
 function saveSession() {
     const campaign = document.getElementById('campaignName').value.trim();
     const slug = campaign ? campaign.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') + '-' : '';
-    const data = { creatures, actionCounters, fearFilled, campaign, vaultCreatures };
+    const data = { creatures, actionCounters, fearFilled, campaign, vaultCreatures, chronicleEntries };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
@@ -22,15 +22,18 @@ function loadSession(event) {
             actionCounters = data.actionCounters || [];
             fearFilled = data.fearFilled || 0;
             vaultCreatures = data.vaultCreatures || [];
+            chronicleEntries = data.chronicleEntries || [];
             if (data.campaign) {
                 document.getElementById('campaignName').value = data.campaign;
                 localStorage.setItem(CAMPAIGN_KEY, data.campaign);
             }
             autoCache();
             autoCacheVault();
+            autoCacheChronicle();
             renderFearDots();
             renderGrid();
             renderVaultGrid();
+            renderChronicle();
         } catch {
             alert('Invalid session file.');
         }
