@@ -139,3 +139,19 @@
 [data-mode="light"] .support-link { border-color: #d4c9b8 !important; }
 [data-mode="light"] .support-link:hover { border-color: color-mix(in srgb, var(--accent-1) 60%, transparent) !important; }
 .support-link:hover .support-link-title { color: var(--accent-1) !important; }
+
+/* Auth menu — light mode */
+[data-mode="light"] #authMenu {
+    background: #fff !important;
+    border-color: #d4c9b8 !important;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+}
+[data-mode="light"] #authMenu button {
+    color: #2a2418 !important;
+}
+[data-mode="light"] #authMenu button:hover {
+    background: #f5f0e8 !important;
+}
+[data-mode="light"] #authMenu button:last-child {
+    color: #c0392b !important;
+}

@@ -28,7 +28,10 @@ async function initAuth() {
 
 function setUser(user) {
     currentUser = user;
+    currentProfile = null;
     renderAuthUI();
+    if (user) startCloudAutoSave();
+    else stopCloudAutoSave();
 }
 
 // ========== AUTH ACTIONS ==========
@@ -62,9 +65,29 @@ async function signUpWithEmail() {
 }
 
 async function signOut() {
+    if (cloudDirty) {
+        const save = confirm('You have unsaved changes. Save to cloud before signing out?');
+        if (save) await cloudSave();
+    }
     await getSupabase().auth.signOut();
     currentUser = null;
     renderAuthUI();
+    // Reset to clean local state
+    creatures = [];
+    actionCounters = [];
+    fearFilled = 0;
+    vaultCreatures = [];
+    chronicleEntries = [];
+    document.getElementById('campaignName').value = '';
+    localStorage.removeItem(CAMPAIGN_KEY);
+    autoCache();
+    autoCacheVault();
+    autoCacheChronicle();
+    renderFearDots();
+    renderGrid();
+    renderVaultGrid();
+    renderChronicle();
+    switchTab('tracker');
 }
 
 // ========== CLOUD SAVE / LOAD ==========
@@ -94,7 +117,7 @@ async function cloudSave() {
     }
 
     if (error) alert('Cloud save failed: ' + error.message);
-    else showToast('☁️ Saved to cloud!');
+    else showSyncStatus('☁️ Saved');
 }
 
 async function cloudLoad() {
@@ -150,7 +173,7 @@ async function loadCloudSession(sessionId) {
     renderVaultGrid();
     renderChronicle();
     closeCloudPicker();
-    showToast('☁️ Loaded from cloud!');
+    showSyncStatus('☁️ Loaded');
 }
 
 async function deleteCloudSession(sessionId) {
@@ -175,35 +198,189 @@ function closeAuthModal() {
     document.getElementById('authModal').classList.add('hidden');
 }
 
+let currentProfile = null;
+
 function renderAuthUI() {
     const btn = document.getElementById('authBtn');
+    const localActions = document.getElementById('localActions');
+    const cloudActions = document.getElementById('cloudActions');
     if (currentUser) {
-        const name = currentUser.user_metadata?.full_name || currentUser.email?.split('@')[0] || 'User';
-        btn.innerHTML = `<span class="text-[10px] text-[#d4a017] font-bold truncate max-w-[80px]">${escHtml(name)}</span>`;
+        const avatarUrl = currentProfile?.avatar_url || currentUser.user_metadata?.picture || '';
+        const name = currentProfile?.nickname || currentUser.user_metadata?.full_name || currentUser.email?.split('@')[0] || 'User';
+        if (avatarUrl) {
+            btn.innerHTML = `<img src="${escHtmlAttr(avatarUrl)}" alt="" class="w-10 h-10 rounded-full border-2 border-[#d4a017] object-cover">`;
+        } else {
+            btn.innerHTML = `<span class="w-10 h-10 rounded-full border-2 border-[#d4a017] bg-[#2a2418] flex items-center justify-center text-sm font-bold text-[#d4a017]">${escHtml(name.charAt(0).toUpperCase())}</span>`;
+        }
         btn.onclick = toggleAuthMenu;
-        document.getElementById('cloudActions').classList.remove('hidden');
+        btn.className = 'h-10 w-10 flex items-center justify-center rounded-full hover:opacity-80 transition-opacity cursor-pointer';
+        localActions.classList.add('hidden');
+        cloudActions.classList.remove('hidden');
+        if (!currentProfile) loadProfile();
     } else {
         btn.innerHTML = '<span class="text-[10px] text-zinc-400">Sign In</span>';
         btn.onclick = openAuthModal;
-        document.getElementById('cloudActions').classList.add('hidden');
+        btn.className = 'h-10 px-3 flex items-center justify-center rounded-lg bg-[#2a2418] border border-[#4a3f30] hover:border-[#d4a017] transition-colors';
+        localActions.classList.remove('hidden');
+        cloudActions.classList.add('hidden');
+        currentProfile = null;
     }
 }
 
-function toggleAuthMenu() {
+let authMenuHandler = null;
+
+function toggleAuthMenu(e) {
+    if (e) e.stopPropagation();
     const menu = document.getElementById('authMenu');
+    const wasHidden = menu.classList.contains('hidden');
     menu.classList.toggle('hidden');
-    // Close on outside click
-    if (!menu.classList.contains('hidden')) {
-        setTimeout(() => {
-            const handler = (e) => {
-                if (!menu.contains(e.target) && e.target !== document.getElementById('authBtn')) {
-                    menu.classList.add('hidden');
-                    document.removeEventListener('click', handler);
-                }
-            };
-            document.addEventListener('click', handler);
-        }, 0);
+
+    // Clean up previous handler
+    if (authMenuHandler) {
+        document.removeEventListener('click', authMenuHandler);
+        authMenuHandler = null;
     }
+
+    if (wasHidden) {
+        authMenuHandler = (ev) => {
+            const btn = document.getElementById('authBtn');
+            if (!menu.contains(ev.target) && !btn.contains(ev.target)) {
+                menu.classList.add('hidden');
+                document.removeEventListener('click', authMenuHandler);
+                authMenuHandler = null;
+            }
+        };
+        setTimeout(() => document.addEventListener('click', authMenuHandler), 0);
+    }
+}
+
+// ========== PROFILE ==========
+let profileLoading = false;
+
+async function loadProfile() {
+    if (!currentUser || currentProfile || profileLoading) return;
+    profileLoading = true;
+    const { data } = await getSupabase()
+        .from('profiles')
+        .select('*')
+        .eq('id', currentUser.id)
+        .single();
+    profileLoading = false;
+    if (data) {
+        currentProfile = data;
+        renderAuthUI();
+    }
+}
+
+function openProfileModal() {
+    document.getElementById('profileModal').classList.remove('hidden');
+    document.getElementById('profileNickname').value = currentProfile?.nickname || '';
+    document.getElementById('profileAvatar').value = currentProfile?.avatar_url || '';
+    document.getElementById('profileCountry').value = currentProfile?.country || '';
+    document.getElementById('profileState').value = currentProfile?.state || '';
+    document.getElementById('profileExperience').value = currentProfile?.dm_experience || '';
+    previewAvatar(currentProfile?.avatar_url || '');
+}
+
+function closeProfileModal() {
+    document.getElementById('profileModal').classList.add('hidden');
+}
+
+function previewAvatar(url) {
+    const preview = document.getElementById('profileAvatarPreview');
+    if (url && url.match(/^https?:\/\//)) {
+        preview.innerHTML = `<img src="${escHtmlAttr(url)}" alt="" class="w-full h-full object-cover" onerror="this.parentElement.innerHTML='\uD83C\uDFB2'">`;
+    } else {
+        preview.innerHTML = '\uD83C\uDFB2';
+    }
+}
+
+async function saveProfile() {
+    if (!currentUser) return;
+    const profile = {
+        id: currentUser.id,
+        nickname: document.getElementById('profileNickname').value.trim() || null,
+        avatar_url: document.getElementById('profileAvatar').value.trim() || null,
+        country: document.getElementById('profileCountry').value.trim() || null,
+        state: document.getElementById('profileState').value.trim() || null,
+        dm_experience: document.getElementById('profileExperience').value || null
+    };
+
+    const { error } = await getSupabase()
+        .from('profiles')
+        .upsert(profile);
+
+    if (error) { alert('Failed to save profile: ' + error.message); return; }
+    currentProfile = profile;
+    renderAuthUI();
+    closeProfileModal();
+    showToast('\uD83D\uDC64 Profile saved!');
+}
+
+// ========== IMPORT LOCAL TO CLOUD ==========
+async function importLocalToCloud() {
+    if (!currentUser) return;
+    const hasData = creatures.length || vaultCreatures.length || chronicleEntries.length || actionCounters.length;
+    if (!hasData) {
+        // Try loading from localStorage directly
+        let localCreatures = [], localVault = [], localChronicle = [], localCounters = [];
+        try { localCreatures = JSON.parse(localStorage.getItem(SAVE_KEY)) || []; } catch {}
+        try { localVault = JSON.parse(localStorage.getItem(VAULT_KEY)) || []; } catch {}
+        try { localChronicle = JSON.parse(localStorage.getItem(CHRONICLE_KEY)) || []; } catch {}
+        try { localCounters = JSON.parse(localStorage.getItem(COUNTERS_KEY)) || []; } catch {}
+        if (!localCreatures.length && !localVault.length && !localChronicle.length && !localCounters.length) {
+            alert('No local data found to import.'); return;
+        }
+        creatures = localCreatures;
+        vaultCreatures = localVault;
+        chronicleEntries = localChronicle;
+        actionCounters = localCounters;
+        fearFilled = parseInt(localStorage.getItem(FEAR_KEY)) || 0;
+        const campaign = localStorage.getItem(CAMPAIGN_KEY) || '';
+        if (campaign) document.getElementById('campaignName').value = campaign;
+        renderFearDots();
+        renderGrid();
+        renderVaultGrid();
+        renderChronicle();
+    }
+    if (!confirm('Upload your current local data to the cloud as a new save?')) return;
+    await cloudSave();
+}
+
+// ========== SYNC STATUS INDICATOR ==========
+let syncStatusTimer = null;
+
+function showSyncStatus(text) {
+    const el = document.getElementById('syncStatus');
+    el.textContent = text;
+    el.classList.remove('hidden');
+    if (syncStatusTimer) clearTimeout(syncStatusTimer);
+    syncStatusTimer = setTimeout(() => el.classList.add('hidden'), 10000);
+}
+
+// ========== CLOUD AUTO-SAVE (every 5 min if changes) ==========
+let cloudDirty = false;
+let cloudAutoSaveInterval = null;
+
+function markCloudDirty() {
+    if (currentUser) cloudDirty = true;
+}
+
+function startCloudAutoSave() {
+    if (cloudAutoSaveInterval) return;
+    cloudAutoSaveInterval = setInterval(async () => {
+        if (!currentUser || !cloudDirty) return;
+        cloudDirty = false;
+        await cloudSave();
+    }, 30 * 1000);
+}
+
+function stopCloudAutoSave() {
+    if (cloudAutoSaveInterval) {
+        clearInterval(cloudAutoSaveInterval);
+        cloudAutoSaveInterval = null;
+    }
+    cloudDirty = false;
 }
 
 function showToast(message) {

@@ -49,6 +49,7 @@ function autoCache() {
     localStorage.setItem(SAVE_KEY, JSON.stringify(creatures));
     localStorage.setItem(COUNTERS_KEY, JSON.stringify(actionCounters));
     localStorage.setItem(FEAR_KEY, String(fearFilled));
+    if (typeof markCloudDirty === 'function') markCloudDirty();
 }
 
 function getNextName(baseName) {

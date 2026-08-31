@@ -4,6 +4,7 @@ let vaultCreatures = [];
 
 function autoCacheVault() {
     localStorage.setItem(VAULT_KEY, JSON.stringify(vaultCreatures));
+    if (typeof markCloudDirty === 'function') markCloudDirty();
 }
 
 // ========== STASH FROM TRACKER ==========

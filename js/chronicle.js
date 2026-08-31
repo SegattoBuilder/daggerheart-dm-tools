@@ -4,6 +4,7 @@ let chronicleEntries = [];
 
 function autoCacheChronicle() {
     localStorage.setItem(CHRONICLE_KEY, JSON.stringify(chronicleEntries));
+    if (typeof markCloudDirty === 'function') markCloudDirty();
 }
 
 function addEntry() {
