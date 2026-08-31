@@ -105,4 +105,5 @@ window.onload = () => {
     });
 
     loadCompendium();
+    initAuth();
 };
