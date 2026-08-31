@@ -18,43 +18,54 @@
 
 <!-- Nav Bar -->
 <nav class="nav-header sticky top-0 z-30 bg-[#1a1714]/95 backdrop-blur border-b border-[#3d362a] -mx-4 px-4 py-3 mb-6">
-    <div class="flex flex-col sm:grid sm:grid-cols-3 gap-3 sm:gap-0 items-center">
-        <div class="flex items-center gap-3">
+    <div class="flex flex-col gap-3 items-center">
+        <!-- Top row: branding, tabs, toggle + hamburger -->
+        <div class="w-full flex flex-col sm:grid sm:grid-cols-[auto_1fr_auto] gap-3 sm:gap-4 items-center">
             <div class="flex flex-col items-center sm:items-start">
                 <span class="font-[Cinzel] text-sm tracking-widest uppercase" style="color: var(--accent-1)">DM Tools</span>
                 <input id="campaignName" type="text" placeholder="Campaign name..." oninput="localStorage.setItem('dh_campaign_name', this.value); this.style.width = Math.min(this.value.length + 2, 56) + 'ch'" class="bg-transparent font-[Cinzel] text-xs font-bold uppercase tracking-widest text-[#d4a017] outline-none border-b border-transparent focus:border-[#d4a017] placeholder-zinc-700" style="width:18ch;max-width:42ch">
             </div>
-            <label class="relative inline-flex items-center cursor-pointer" title="Toggle light/dark mode">
-                <input type="checkbox" id="modeToggleChk" class="sr-only peer" onchange="toggleMode()">
-                <div class="w-11 h-6 bg-[#3d362a] peer-checked:bg-[#d4c9b8] rounded-full transition-colors"></div>
-                <div id="modeToggleThumb" class="absolute left-0.5 top-0.5 w-5 h-5 rounded-full bg-[#1a1714] flex items-center justify-center text-[11px] transition-transform peer-checked:translate-x-5 peer-checked:bg-white"><span id="modeToggleIcon">🌙</span></div>
-            </label>
+            <div class="flex items-center justify-center gap-4 flex-wrap">
+                <button onclick="switchTab('tracker')" id="tabTracker" class="tab-btn font-[Cinzel] text-[11px] uppercase tracking-wider pb-1 font-bold active">⚔️ Combat Tracker</button>
+                <button onclick="switchTab('vault')" id="tabVault" class="tab-btn font-[Cinzel] text-[11px] uppercase tracking-wider pb-1 font-bold">📦 Vault</button>
+                <button onclick="switchTab('chronicle')" id="tabChronicle" class="tab-btn font-[Cinzel] text-[11px] uppercase tracking-wider pb-1 font-bold">📜 Chronicle</button>
+                <button onclick="switchTab('adversaries')" id="tabAdversaries" class="tab-btn font-[Cinzel] text-[11px] uppercase tracking-wider pb-1 font-bold">👹 Adversaries</button>
+                <button onclick="switchTab('compendium')" id="tabCompendium" class="tab-btn font-[Cinzel] text-[11px] uppercase tracking-wider pb-1 font-bold">📖 Compendium</button>
+                <button onclick="switchTab('support')" id="tabSupport" class="tab-btn font-[Cinzel] text-[11px] uppercase tracking-wider pb-1 font-bold">🤝 Support</button>
+            </div>
+            <div class="flex items-center gap-2">
+                <button id="toolbarToggle" onclick="document.getElementById('toolbarRow').classList.toggle('hidden')" class="w-8 h-8 flex items-center justify-center rounded-lg bg-[#2a2418] border border-[#4a3f30] text-zinc-400 hover:border-[#d4a017] hover:text-[#d4a017] text-sm" title="Toggle toolbar">☰</button>
+                <label class="relative inline-flex items-center cursor-pointer" title="Toggle light/dark mode">
+                    <input type="checkbox" id="modeToggleChk" class="sr-only peer" onchange="toggleMode()">
+                    <div class="w-11 h-6 bg-[#3d362a] peer-checked:bg-[#d4c9b8] rounded-full transition-colors"></div>
+                    <div id="modeToggleThumb" class="absolute left-0.5 top-0.5 w-5 h-5 rounded-full bg-[#1a1714] flex items-center justify-center text-[11px] transition-transform peer-checked:translate-x-5 peer-checked:bg-white"><span id="modeToggleIcon">🌙</span></div>
+                </label>
+            </div>
         </div>
-        <div class="flex items-center justify-center gap-4">
-            <button onclick="switchTab('tracker')" id="tabTracker" class="tab-btn font-[Cinzel] text-[11px] uppercase tracking-wider pb-1 font-bold active">⚔️ Combat Tracker</button>
-            <button onclick="switchTab('vault')" id="tabVault" class="tab-btn font-[Cinzel] text-[11px] uppercase tracking-wider pb-1 font-bold">📦 Vault</button>
-            <button onclick="switchTab('chronicle')" id="tabChronicle" class="tab-btn font-[Cinzel] text-[11px] uppercase tracking-wider pb-1 font-bold">📜 Chronicle</button>
-            <button onclick="switchTab('adversaries')" id="tabAdversaries" class="tab-btn font-[Cinzel] text-[11px] uppercase tracking-wider pb-1 font-bold">👹 Adversaries</button>
-            <button onclick="switchTab('compendium')" id="tabCompendium" class="tab-btn font-[Cinzel] text-[11px] uppercase tracking-wider pb-1 font-bold">📖 Compendium</button>
-            <button onclick="switchTab('support')" id="tabSupport" class="tab-btn font-[Cinzel] text-[11px] uppercase tracking-wider pb-1 font-bold">🤝 Support</button>
-        </div>
-        <div id="trackerActions" class="flex flex-wrap items-center justify-center sm:justify-end gap-1.5">
-            <button onclick="saveSession()" class="bg-[#2a2418] border border-[#4a3f30] text-[10px] px-2 sm:px-3 py-1.5 rounded-full font-bold uppercase text-zinc-400 font-[Cinzel] hover:border-[#d4a017] hover:text-[#d4a017]">💾 Save</button>
-            <label class="bg-[#2a2418] border border-[#4a3f30] text-[10px] px-2 sm:px-3 py-1.5 rounded-full font-bold uppercase text-zinc-400 font-[Cinzel] hover:border-[#d4a017] hover:text-[#d4a017] cursor-pointer">📂 Load<input type="file" accept=".json" onchange="loadSession(event)" class="hidden"></label>
-            <button onclick="addCounter()" class="bg-[#2a2418] border border-[#4a3f30] text-[10px] px-2 sm:px-3 py-1.5 rounded-full font-bold uppercase text-[#d4a017] font-[Cinzel] hover:border-[#d4a017]">✚ Counter</button>
-            <button onclick="openAddModal()" class="btn-action text-[10px] px-3 py-1.5 rounded-full font-bold uppercase text-white font-[Cinzel]">+ Adversary</button>
-            <button onclick="clearCreatures(event)" class="bg-[#2a1a1a] border border-[#4a2a2a] text-[10px] px-2 py-1.5 rounded-full font-bold uppercase text-red-400 font-[Cinzel] hover:border-red-500">🗑 Adversaries</button>
-            <button onclick="clearCounters(event)" class="bg-[#2a1a1a] border border-[#4a2a2a] text-[10px] px-2 py-1.5 rounded-full font-bold uppercase text-red-400 font-[Cinzel] hover:border-red-500">🗑 Counters</button>
-            <button onclick="resetFear()" class="bg-[#2a1a1a] border border-[#4a2a2a] text-[10px] px-2 py-1.5 rounded-full font-bold uppercase text-red-400 font-[Cinzel] hover:border-red-500">🗑 Fear</button>
-            <button onclick="clearAll(event)" class="btn-danger text-[10px] px-3 py-1.5 rounded-full font-bold uppercase text-red-200 font-[Cinzel]">🗑 All</button>
-        </div>
-        <div id="vaultActions" class="hidden flex flex-wrap items-center justify-center sm:justify-end gap-1.5">
-            <button onclick="openAddModal()" class="btn-action text-[10px] px-3 py-1.5 rounded-full font-bold uppercase text-white font-[Cinzel]">+ Adversary</button>
-            <button onclick="clearVault(event)" class="btn-danger text-[10px] px-3 py-1.5 rounded-full font-bold uppercase text-red-200 font-[Cinzel]">🗑 Vault</button>
-        </div>
-        <div id="chronicleActions" class="hidden flex flex-wrap items-center justify-center sm:justify-end gap-1.5">
-            <button onclick="addEntry()" class="btn-action text-[10px] px-3 py-1.5 rounded-full font-bold uppercase text-white font-[Cinzel]">+ Chapter</button>
-            <button onclick="clearChronicle(event)" class="btn-danger text-[10px] px-3 py-1.5 rounded-full font-bold uppercase text-red-200 font-[Cinzel]">🗑 Chapters</button>
+        <!-- Collapsible toolbar row -->
+        <div id="toolbarRow" class="hidden w-full border-t border-[#3d362a] pt-3">
+            <div class="flex flex-wrap items-center justify-center gap-1.5">
+                <button onclick="saveSession()" class="bg-[#2a2418] border border-[#4a3f30] text-[10px] px-2 sm:px-3 py-1.5 rounded-full font-bold uppercase text-zinc-400 font-[Cinzel] hover:border-[#d4a017] hover:text-[#d4a017]">💾 Save</button>
+                <label class="bg-[#2a2418] border border-[#4a3f30] text-[10px] px-2 sm:px-3 py-1.5 rounded-full font-bold uppercase text-zinc-400 font-[Cinzel] hover:border-[#d4a017] hover:text-[#d4a017] cursor-pointer">📂 Load<input type="file" accept=".json" onchange="loadSession(event)" class="hidden"></label>
+                <span class="w-px h-5 bg-[#3d362a] mx-1"></span>
+                <div id="trackerActions" class="contents">
+                    <button onclick="addCounter()" class="bg-[#2a2418] border border-[#4a3f30] text-[10px] px-2 sm:px-3 py-1.5 rounded-full font-bold uppercase text-[#d4a017] font-[Cinzel] hover:border-[#d4a017]">✚ Counter</button>
+                    <button onclick="openAddModal()" class="btn-action text-[10px] px-3 py-1.5 rounded-full font-bold uppercase text-white font-[Cinzel]">+ Adversary</button>
+                    <span class="w-px h-5 bg-[#3d362a] mx-1"></span>
+                    <button onclick="clearCreatures(event)" class="bg-[#2a1a1a] border border-[#4a2a2a] text-[10px] px-2 py-1.5 rounded-full font-bold uppercase text-red-400 font-[Cinzel] hover:border-red-500">🗑 Adversaries</button>
+                    <button onclick="clearCounters(event)" class="bg-[#2a1a1a] border border-[#4a2a2a] text-[10px] px-2 py-1.5 rounded-full font-bold uppercase text-red-400 font-[Cinzel] hover:border-red-500">🗑 Counters</button>
+                    <button onclick="resetFear()" class="bg-[#2a1a1a] border border-[#4a2a2a] text-[10px] px-2 py-1.5 rounded-full font-bold uppercase text-red-400 font-[Cinzel] hover:border-red-500">🗑 Fear</button>
+                    <button onclick="clearAll(event)" class="btn-danger text-[10px] px-3 py-1.5 rounded-full font-bold uppercase text-red-200 font-[Cinzel]">🗑 All</button>
+                </div>
+                <div id="vaultActions" class="hidden contents">
+                    <button onclick="openAddModal()" class="btn-action text-[10px] px-3 py-1.5 rounded-full font-bold uppercase text-white font-[Cinzel]">+ Adversary</button>
+                    <button onclick="clearVault(event)" class="btn-danger text-[10px] px-3 py-1.5 rounded-full font-bold uppercase text-red-200 font-[Cinzel]">🗑 Vault</button>
+                </div>
+                <div id="chronicleActions" class="hidden contents">
+                    <button onclick="addEntry()" class="btn-action text-[10px] px-3 py-1.5 rounded-full font-bold uppercase text-white font-[Cinzel]">+ Chapter</button>
+                    <button onclick="clearChronicle(event)" class="btn-danger text-[10px] px-3 py-1.5 rounded-full font-bold uppercase text-red-200 font-[Cinzel]">🗑 Chapters</button>
+                </div>
+            </div>
         </div>
     </div>
 </nav>
