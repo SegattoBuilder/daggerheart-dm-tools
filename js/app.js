@@ -52,27 +52,30 @@ function autoCache() {
 }
 
 function getNextName(baseName) {
-    const existing = creatures.filter(c => c.name === baseName || c.name.match(new RegExp('^' + baseName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ' \\d+$')));
+    const all = [...creatures, ...vaultCreatures];
+    const existing = all.filter(c => c.name === baseName || c.name.match(new RegExp('^' + baseName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ' \\d+$')));
     if (existing.length === 0) return baseName;
     const nums = existing.map(c => { const m = c.name.match(/ (\d+)$/); return m ? parseInt(m[1]) : 1; });
     return `${baseName} ${Math.max(...nums) + 1}`;
 }
 
 function hasNameConflict(name, excludeId) {
-    return creatures.some(c => c.id !== excludeId && c.name === name);
+    const all = [...creatures, ...vaultCreatures];
+    return all.some(c => c.id !== excludeId && c.name === name);
+}
+
+function isVaultActive() {
+    return !document.getElementById('panelVault').classList.contains('hidden');
 }
 
 // ========== TAB SWITCHING ==========
 function switchTab(tab) {
-    document.getElementById('panelTracker').classList.toggle('hidden', tab !== 'tracker');
-    document.getElementById('panelAdversaries').classList.toggle('hidden', tab !== 'adversaries');
-    document.getElementById('panelCompendium').classList.toggle('hidden', tab !== 'compendium');
-    document.getElementById('panelSupport').classList.toggle('hidden', tab !== 'support');
-    document.getElementById('tabTracker').classList.toggle('active', tab === 'tracker');
-    document.getElementById('tabAdversaries').classList.toggle('active', tab === 'adversaries');
-    document.getElementById('tabCompendium').classList.toggle('active', tab === 'compendium');
-    document.getElementById('tabSupport').classList.toggle('active', tab === 'support');
+    ['tracker','adversaries','compendium','vault','support'].forEach(t => {
+        document.getElementById('panel' + t.charAt(0).toUpperCase() + t.slice(1)).classList.toggle('hidden', tab !== t);
+        document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1)).classList.toggle('active', tab === t);
+    });
     document.getElementById('trackerActions').classList.toggle('hidden', tab !== 'tracker');
+    document.getElementById('vaultActions').classList.toggle('hidden', tab !== 'vault');
 }
 
 // ========== INIT ==========
@@ -82,6 +85,7 @@ window.onload = () => {
     if (raw) {
         try { creatures = JSON.parse(raw) || []; } catch { creatures = []; }
     }
+    try { vaultCreatures = JSON.parse(localStorage.getItem(VAULT_KEY)) || []; } catch { vaultCreatures = []; }
     fearFilled = parseInt(localStorage.getItem(FEAR_KEY)) || 0;
     renderFearDots();
     try { actionCounters = JSON.parse(localStorage.getItem(COUNTERS_KEY)) || []; } catch { actionCounters = []; }
@@ -90,6 +94,7 @@ window.onload = () => {
     cnInput.value = savedCampaign;
     if (savedCampaign) cnInput.style.width = Math.min(savedCampaign.length + 2, 56) + 'ch';
     renderGrid();
+    renderVaultGrid();
 
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') { closeAddTypeModal(); closeAddModal(); closeEnemyModal(); closeCustomModal(); closeCardModal(); }

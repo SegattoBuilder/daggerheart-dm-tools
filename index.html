@@ -32,6 +32,7 @@
         </div>
         <div class="flex items-center justify-center gap-4">
             <button onclick="switchTab('tracker')" id="tabTracker" class="tab-btn font-[Cinzel] text-[11px] uppercase tracking-wider pb-1 font-bold active">⚔️ Combat Tracker</button>
+            <button onclick="switchTab('vault')" id="tabVault" class="tab-btn font-[Cinzel] text-[11px] uppercase tracking-wider pb-1 font-bold">📦 Vault</button>
             <button onclick="switchTab('adversaries')" id="tabAdversaries" class="tab-btn font-[Cinzel] text-[11px] uppercase tracking-wider pb-1 font-bold">👹 Adversaries</button>
             <button onclick="switchTab('compendium')" id="tabCompendium" class="tab-btn font-[Cinzel] text-[11px] uppercase tracking-wider pb-1 font-bold">📖 Compendium</button>
             <button onclick="switchTab('support')" id="tabSupport" class="tab-btn font-[Cinzel] text-[11px] uppercase tracking-wider pb-1 font-bold">🤝 Support</button>
@@ -45,6 +46,10 @@
             <button onclick="clearCounters(event)" class="bg-[#2a1a1a] border border-[#4a2a2a] text-[10px] px-2 py-1.5 rounded-full font-bold uppercase text-red-400 font-[Cinzel] hover:border-red-500">🗑 Counters</button>
             <button onclick="resetFear()" class="bg-[#2a1a1a] border border-[#4a2a2a] text-[10px] px-2 py-1.5 rounded-full font-bold uppercase text-red-400 font-[Cinzel] hover:border-red-500">🗑 Fear</button>
             <button onclick="clearAll(event)" class="btn-danger text-[10px] px-3 py-1.5 rounded-full font-bold uppercase text-red-200 font-[Cinzel]">🗑 All</button>
+        </div>
+        <div id="vaultActions" class="hidden flex flex-wrap items-center justify-center sm:justify-end gap-1.5">
+            <button onclick="openAddModal()" class="btn-action text-[10px] px-3 py-1.5 rounded-full font-bold uppercase text-white font-[Cinzel]">+ Adversary</button>
+            <button onclick="clearVault(event)" class="btn-danger text-[10px] px-3 py-1.5 rounded-full font-bold uppercase text-red-200 font-[Cinzel]">🗑 Vault</button>
         </div>
     </div>
 </nav>
@@ -133,6 +138,15 @@
     <!-- Results -->
     <div id="compendiumStatus" class="text-center text-zinc-600 text-sm py-8">Loading compendium data...</div>
     <div id="compendiumResults" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+</div>
+
+<!-- VAULT TAB -->
+<div id="panelVault" class="hidden">
+    <div id="vaultGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div class="col-span-full text-center py-20">
+            <div class="text-zinc-600 text-sm italic">Vault is empty. Use 📦 on tracker cards to stash creatures here.</div>
+        </div>
+    </div>
 </div>
 
 <!-- SUPPORT TAB -->
@@ -485,6 +499,7 @@ Bite - Action: Mark a Stress to attack..." class="w-full bg-[#1a1714] border bor
 </div>
 
 <script src="js/feedback.js"></script>
+<script src="js/vault.js"></script>
 <script src="js/app.js"></script>
 <script src="js/tracker.js"></script>
 <script src="js/compendium.js"></script>

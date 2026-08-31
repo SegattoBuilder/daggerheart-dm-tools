@@ -2,7 +2,7 @@
 function saveSession() {
     const campaign = document.getElementById('campaignName').value.trim();
     const slug = campaign ? campaign.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') + '-' : '';
-    const data = { creatures, actionCounters, fearFilled, campaign };
+    const data = { creatures, actionCounters, fearFilled, campaign, vaultCreatures };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
@@ -21,13 +21,16 @@ function loadSession(event) {
             creatures = data.creatures || [];
             actionCounters = data.actionCounters || [];
             fearFilled = data.fearFilled || 0;
+            vaultCreatures = data.vaultCreatures || [];
             if (data.campaign) {
                 document.getElementById('campaignName').value = data.campaign;
                 localStorage.setItem(CAMPAIGN_KEY, data.campaign);
             }
             autoCache();
+            autoCacheVault();
             renderFearDots();
             renderGrid();
+            renderVaultGrid();
         } catch {
             alert('Invalid session file.');
         }
@@ -145,8 +148,8 @@ function closeAddModal() {
     document.getElementById('modalSubmitBtn').textContent = 'Add';
 }
 
-function editCharacterCard(creatureId) {
-    const creature = creatures.find(c => c.id === creatureId);
+function editCharacterCard(creatureId, fromVault) {
+    const creature = (fromVault ? vaultCreatures : creatures).find(c => c.id === creatureId);
     if (!creature) return;
     const ed = creature.enemyData;
     const thresholds = ed ? (ed.thresholds || '') : '';
@@ -219,7 +222,8 @@ function addCreatures() {
     // Edit mode
     const editId = document.getElementById('addModal').getAttribute('data-edit-id');
     if (editId) {
-        const creature = creatures.find(c => c.id === editId);
+        const creature = creatures.find(c => c.id === editId) || vaultCreatures.find(c => c.id === editId);
+        const isVault = vaultCreatures.includes(creature);
         if (creature) {
             if (hasNameConflict(name, editId)) { alert('Name already in use. Please choose a different name.'); return; }
             creature.name = name;
@@ -233,8 +237,8 @@ function addCreatures() {
             creature.armorMax = armor;
             creature.armorFilled = Math.min(creature.armorFilled, armor);
             creature.enemyData = enemyData;
-            autoCache();
-            renderCard(creature);
+            if (isVault) { autoCacheVault(); renderVaultCard(creature); }
+            else { autoCache(); renderCard(creature); }
             closeAddModal();
             return;
         }
@@ -242,6 +246,7 @@ function addCreatures() {
 
     // Create mode
 
+    const toVault = isVaultActive();
     for (let i = 1; i <= qty; i++) {
         const creatureName = qty > 1 ? `${name} ${i}` : getNextName(name);
         const creature = {
@@ -254,11 +259,12 @@ function addCreatures() {
             armorMax: armor, armorFilled: armor
         };
         if (enemyData) creature.enemyData = enemyData;
-        creatures.push(creature);
+        if (toVault) vaultCreatures.push(creature);
+        else creatures.push(creature);
     }
 
-    autoCache();
-    renderGrid();
+    if (toVault) { autoCacheVault(); renderVaultGrid(); }
+    else { autoCache(); renderGrid(); }
     closeAddModal();
 }
 
@@ -340,10 +346,11 @@ function addEnemy() {
     const hp = parseInt(selectedEnemy.hp) || 1;
     const stress = parseInt(selectedEnemy.stress) || 0;
     const evasion = parseInt(selectedEnemy.difficulty) || 10;
+    const toVault = isVaultActive();
 
     for (let i = 1; i <= qty; i++) {
         const name = qty > 1 ? `${selectedEnemy.name} ${i}` : getNextName(selectedEnemy.name);
-        creatures.push({
+        const c = {
             id: 'c-' + Date.now() + '-' + Math.random().toString(36).substr(2, 6),
             name,
             evasion,
@@ -352,11 +359,13 @@ function addEnemy() {
             hopeMax: 0, hopeFilled: 0,
             armorMax: 0, armorFilled: 0,
             enemyData: selectedEnemy
-        });
+        };
+        if (toVault) vaultCreatures.push(c);
+        else creatures.push(c);
     }
 
-    autoCache();
-    renderGrid();
+    if (toVault) { autoCacheVault(); renderVaultGrid(); }
+    else { autoCache(); renderGrid(); }
     closeEnemyModal();
 }
 
@@ -453,8 +462,8 @@ function closeCustomModal() {
     document.getElementById('customSubmitBtn').textContent = 'Add';
 }
 
-function editCustomCard(creatureId) {
-    const creature = creatures.find(c => c.id === creatureId);
+function editCustomCard(creatureId, fromVault) {
+    const creature = (fromVault ? vaultCreatures : creatures).find(c => c.id === creatureId);
     if (!creature || !creature.enemyData) return;
     const ed = creature.enemyData;
     const thresholds = ed.thresholds || '';
@@ -482,8 +491,8 @@ function editCustomCard(creatureId) {
     document.getElementById('customName').focus();
 }
 
-function editEnemyCard(creatureId) {
-    const creature = creatures.find(c => c.id === creatureId);
+function editEnemyCard(creatureId, fromVault) {
+    const creature = (fromVault ? vaultCreatures : creatures).find(c => c.id === creatureId);
     if (!creature || !creature.enemyData) return;
     const ed = creature.enemyData;
     const thresholds = ed.thresholds || '';
@@ -559,7 +568,8 @@ function addCustom() {
     // Edit mode
     const editId = document.getElementById('customModal').getAttribute('data-edit-id');
     if (editId) {
-        const creature = creatures.find(c => c.id === editId);
+        const creature = creatures.find(c => c.id === editId) || vaultCreatures.find(c => c.id === editId);
+        const isVault = vaultCreatures.includes(creature);
         if (creature) {
             if (hasNameConflict(name, editId)) { alert('Name already in use. Please choose a different name.'); return; }
             creature.name = name;
@@ -569,17 +579,18 @@ function addCustom() {
             creature.stressMax = stress;
             creature.stressFilled = Math.min(creature.stressFilled, stress);
             creature.enemyData = enemyData;
-            autoCache();
-            renderCard(creature);
+            if (isVault) { autoCacheVault(); renderVaultCard(creature); }
+            else { autoCache(); renderCard(creature); }
             closeCustomModal();
             return;
         }
     }
 
     // Create mode
+    const toVault = isVaultActive();
     for (let i = 1; i <= qty; i++) {
         const creatureName = qty > 1 ? `${name} ${i}` : getNextName(name);
-        creatures.push({
+        const c = {
             id: 'c-' + Date.now() + '-' + Math.random().toString(36).substr(2, 6),
             name: creatureName,
             evasion: difficulty,
@@ -588,11 +599,13 @@ function addCustom() {
             hopeMax: 0, hopeFilled: 0,
             armorMax: 0, armorFilled: 0,
             enemyData
-        });
+        };
+        if (toVault) vaultCreatures.push(c);
+        else creatures.push(c);
     }
 
-    autoCache();
-    renderGrid();
+    if (toVault) { autoCacheVault(); renderVaultGrid(); }
+    else { autoCache(); renderGrid(); }
     closeCustomModal();
 }
 
@@ -741,6 +754,7 @@ function buildCardInner(creature, dead) {
             </div>
             <div class="flex items-center gap-2">
                 <button onclick="copyCreature('${creature.id}')" class="text-zinc-500 hover:text-[#d4a017] text-sm leading-none" title="Duplicate">➕</button>
+                <button onclick="stashToVault('${creature.id}')" class="text-zinc-500 hover:text-[#d4a017] text-sm leading-none" title="Stash to Vault">📦</button>
                 ${ed && (ed.type === 'Custom' || ed.type === 'Enemy (Edited)') ? `<button onclick="editCustomCard('${creature.id}')" class="text-zinc-500 hover:text-[#d4a017] text-sm leading-none" title="Edit">✏️</button>` : ''}
                 ${ed && ed.type === 'Character' ? `<button onclick="editCharacterCard('${creature.id}')" class="text-zinc-500 hover:text-[#d4a017] text-sm leading-none" title="Edit">✏️</button>` : ''}
                 ${!ed ? `<button onclick="editCharacterCard('${creature.id}')" class="text-zinc-500 hover:text-[#d4a017] text-sm leading-none" title="Edit">✏️</button>` : ''}
